@@ -1,0 +1,124 @@
+{%- if section.settings.mobile_image != blank and section.settings.desktop_image != blank -%}
+  <div id="Picture-{{ section.id }}" class="page-width{% if section.settings.mobile_full_width %} full-width-mobile{% endif %}{% if section.settings.desktop_full_width %} full-width-desktop{% endif %}">
+    {%- if section.settings.link != blank -%}
+      <a class="full-unstyled-link" href="{{ section.settings.link }}"{% if section.settings.link_target_blank %} target="_blank" rel="noopener"{% endif %}>
+    {%- endif -%}
+
+    <picture class="picture">
+      {% comment %} Desktop Banner {% endcomment %}
+      <source
+        srcset="{%- if section.settings.desktop_image.width >= 750 -%}{{ section.settings.desktop_image | image_url: width: 750, format: 'pjpg' }} 750w,{%- endif -%}
+        {%- if section.settings.desktop_image.width >= 1100 -%}{{ section.settings.desktop_image | image_url: width: 1100, format: 'pjpg' }} 1100w,{%- endif -%}
+        {%- if section.settings.desktop_image.width >= 1500 -%}{{ section.settings.desktop_image | image_url: width: 1500, format: 'pjpg' }} 1500w,{%- endif -%}
+        {%- if section.settings.desktop_image.width >= 1780 -%}{{ section.settings.desktop_image | image_url: width: 1780, format: 'pjpg' }} 1780w,{%- endif -%}
+        {%- if section.settings.desktop_image.width >= 2000 -%}{{ section.settings.desktop_image | image_url: width: 2000, format: 'pjpg' }} 2000w,{%- endif -%}
+        {%- if section.settings.desktop_image.width >= 3000 -%}{{ section.settings.desktop_image | image_url: width: 3000, format: 'pjpg' }} 3000w,{%- endif -%}
+        {%- if section.settings.desktop_image.width >= 3840 -%}{{ section.settings.desktop_image | image_url: width: 3840, format: 'pjpg' }} 3840w,{%- endif -%}
+        {{ section.settings.desktop_image | image_url: width: section.settings.desktop_image.width, format: 'pjpg' }} {{ section.settings.desktop_image.width }}w"
+        {% if section.settings.loading == 'lazy' %}loading="lazy"{% endif %}
+        width="{{ section.settings.desktop_image.width }}"
+        height="{{ section.settings.desktop_image.height }}"
+        media="(min-width: 750px)"
+      />
+      {% comment %} Mobile Banner {% endcomment %}
+      {% comment %} theme-check-disable ImgLazyLoading {% endcomment %}
+      <img
+        srcset="{{ section.settings.mobile_image | image_url: width: 375, format: 'pjpg' }} 375w"
+        sizes="100vw"
+        src="{{ section.settings.mobile_image | image_url: width: 1500, format: 'pjpg' }}"
+        {% if section.settings.loading == 'lazy' -%} loading="lazy"{% endif %}
+        alt="{{ section.settings.mobile_image.alt | escape }}"
+        width="{{ section.settings.mobile_image.width }}"
+        height="{{ section.settings.mobile_image.height }}"
+      />
+    </picture>
+
+    {%- if section.settings.link != blank -%}
+      </a>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.picture.name",
+  "tag": "section",
+  "class": "spaced-section spaced-section--full-width",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.picture.settings.paragraph__info.content"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.picture.settings.header__mobile.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "t:sections.picture.settings.mobile_image.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "mobile_full_width",
+      "default": true,
+      "label": "t:sections.picture.settings.mobile_full_width.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.picture.settings.header__desktop.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "desktop_image",
+      "label": "t:sections.picture.settings.desktop_image.label",
+      "info": "t:sections.picture.settings.desktop_image.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "desktop_full_width",
+      "default": true,
+      "label": "t:sections.picture.settings.desktop_full_width.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.picture.settings.header__general.content"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:sections.picture.settings.link.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "link_target_blank",
+      "label": "t:sections.picture.settings.link_target_blank.label"
+    },
+    {
+      "type": "select",
+      "id": "loading",
+      "label": "t:sections.picture.settings.loading.label",
+      "options": [
+        {
+          "value": "lazy",
+          "label": "t:sections.picture.settings.loading.option__lazy.label"
+        },
+        {
+          "value": "eager",
+          "label": "t:sections.picture.settings.loading.option__eager.label"
+        }
+      ],
+      "default": "lazy",
+      "info": "t:sections.picture.settings.loading.info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.picture.presets.name",
+      "blocks": [
+
+      ]
+    }
+  ]
+}
+{% endschema %}

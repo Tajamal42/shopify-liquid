@@ -1,0 +1,38 @@
+{% layout none %}
+{
+"variants": [
+{% for variant in product.variants %}
+{
+"sku": {{ variant.sku | json }}
+}{% unless forloop.last %},{% endunless %}
+{% endfor %}
+],
+"images": [
+{%- for media in product.media %}
+{
+"id": "{{ media.id }}",
+"src": "{{ media | img_url: '550x550' }}",
+"alt": "{{ media.alt }}",
+"srcset_sizes": [288, 575, 550, 1100],
+"srcset": [
+{
+"src": "{{ media | img_url: '288x' }}",
+"size": 288
+},
+{
+"src": "{{ media | img_url: '576x' }}",
+"size": 576
+},
+{
+"src": "{{ media | img_url: '550x' }}",
+"size": 550
+},
+{
+"src": "{{ media | img_url: '1100x' }}",
+"size": 1100
+}
+]
+}{% unless forloop.last %},{% endunless %}
+{% endfor %}
+]
+}

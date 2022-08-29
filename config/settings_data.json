@@ -1,0 +1,48 @@
+{
+  "current": {
+    "type_header_font": "avenir_next_n4",
+    "type_body_font": "sans-serif",
+    "social_twitter_link": "https:\/\/twitter.com\/Brow__Code",
+    "social_facebook_link": "https:\/\/www.facebook.com\/Brow-Code-251946955270832\/?hc_ref=ARTBmDhI73QnqerAIeTuVZaiYmcPt1OgUvUP6cyKMGVD5JHKMZuVmhBPmk6YHT3Ewd0",
+    "social_pinterest_link": "https:\/\/www.pinterest.com.au\/brow_code\/_created\/",
+    "social_instagram_link": "https:\/\/instagram.com\/browcode\/",
+    "social_tiktok_link": "https:\/\/tiktok.com\/@browcode",
+    "social_youtube_link": "https:\/\/www.youtube.com\/channel\/UCFb_89blxrV9EH7B2mepf7Q\/featured?view_as=subscriber",
+    "sections": {
+      "announcement-bar": {
+        "type": "announcement-bar",
+        "blocks": {
+        },
+        "block_order": [
+        ],
+        "settings": {
+        }
+      },
+      "header": {
+        "type": "header",
+        "settings": {
+          "logo_width": 100,
+          "menu": "main-menu",
+          "show_line_separator": false,
+          "enable_sticky_header": true
+        }
+      },
+      "footer": {
+        "type": "footer",
+        "settings": {
+          "newsletter_enable": true,
+          "newsletter_heading": "Subscribe to our emails",
+          "show_social": true,
+          "enable_country_selector": true,
+          "enable_language_selector": true,
+          "payment_enable": true
+        }
+      }
+    },
+    "content_for_index": [
+
+    ]
+  },
+  "presets": {
+  }
+}

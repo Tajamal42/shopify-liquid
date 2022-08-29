@@ -1,0 +1,126 @@
+.disclosure {
+  position: relative;
+}
+
+.disclosure__button {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  height: 4rem;
+  padding: 0 1.5rem 0 1.5rem;
+  font-size: 1.3rem;
+  background-color: transparent;
+}
+
+.disclosure__list {
+  border: 1px solid rgba(var(--color-foreground), 0.4);
+  font-size: 1.4rem;
+  margin-top: -0.5rem;
+  min-height: 8.2rem;
+  max-height: 19rem;
+  max-width: 30rem;
+  min-width: 26rem;
+  width: max-content;
+  overflow-y: auto;
+  padding-bottom: 0.5rem;
+  padding-top: 0.5rem;
+  position: absolute;
+  bottom: 100%;
+  transform: translateY(-1rem);
+  z-index: 2;
+  background-color: rgb(var(--color-background));
+}
+
+.disclosure__item {
+  position: relative;
+}
+
+.disclosure__item .icon {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgb(var(--color-icon));
+}
+
+.disclosure__item--separator {
+  pointer-events: none;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(var(--color-foreground), 0.3);
+  text-transform: uppercase;
+}
+
+.disclosure__item--separator:first-of-type {
+  margin-top: 0;
+  border-top: 0;
+}
+
+.disclosure__link {
+  display: block;
+  padding: 0.5rem 2.2rem;
+  text-decoration: none;
+  line-height: calc(1 + 0.8 / var(--font-body-scale));
+}
+
+.disclosure__link:hover {
+  color: rgba(var(--color-gold-lt), 1);
+}
+
+.disclosure__link--active {
+  color: rgb(var(--color-background));
+  background-color: rgba(var(--color-gold-dk), 1);
+}
+
+.disclosure__link--separator {
+  font-size: 1rem;
+  letter-spacing: 0.1rem;
+  opacity: 1;
+  color: rgb(var(--color-gold-lt));
+}
+
+/* Scrollbar */
+
+.disclosure__list::-webkit-scrollbar {
+  height: 0.4rem;
+  width: 0.8rem;
+  cursor: pointer;
+}
+.disclosure__list::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--color-icon), 1);
+  border: 0;
+  cursor: pointer !important;
+}
+.disclosure__list::-webkit-scrollbar-track {
+  background: rgba(var(--color-foreground), 0.04);
+  cursor: pointer;
+}
+
+@media screen and (min-width: 1280px) {
+  .disclosure__list::-webkit-scrollbar {
+    cursor: pointer;
+    display: initial;
+    height: 1.2rem;
+  }
+
+  .disclosure__list::-webkit-scrollbar-track {
+    border-top: 0.4rem solid transparent;
+    border-bottom: 0.4rem solid transparent;
+    border-radius: 1rem;
+    background-clip: content-box;
+  }
+
+  .disclosure__list::-webkit-scrollbar-thumb {
+    border-radius: 0.75rem;
+  }
+}
+
+/* Localization-Form */
+.header__store-details .disclosure__link,
+.footer .disclosure__link {
+  padding: 0.95rem 3.5rem 0.95rem 2rem;
+}
+
+.disclosure__item--external .disclosure__link {
+  padding-right: 4.5rem;
+}

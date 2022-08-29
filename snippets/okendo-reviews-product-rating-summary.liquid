@@ -1,0 +1,13 @@
+{% comment %}
+  Okendo Product Rating Summary
+  - The average star rating for a single product  
+  
+  Usage:
+  {% render 'okendo-reviews-product-rating-summary', product: product %}
+{% endcomment %}
+
+{%- if settings.okendo_enabled -%}
+  <div data-oke-reviews-product-listing-rating>
+    {{ product.metafields.okendo.ProductListingSnippet }}
+  </div>
+{%- endif -%}

@@ -1,0 +1,94 @@
+{
+  "shop_country": "NL",
+  "shop_country_v2": {
+    "iso_code": "NL",
+    "name": "Netherlands"
+  },
+  "shop_mode": "B2B",
+  "sibling_shop": {
+    "url": null,
+    "mode": null
+  },
+  "all_shops": [
+    {
+      "country": {
+        "iso_code": "AU",
+        "name": "Australia"
+      },
+      "urls": {
+        "D2C": "https://www.browcode.com.au",
+        "B2B": "https://pro.browcode.com.au"
+      },
+      "is_hreflang_xdefault": true,
+      "languages": [ "en-au" ],
+      "currency": {
+        "iso_code": "AUD",
+        "symbol": "$"
+      }
+    },
+    {
+      "country": {
+        "iso_code": "NZ",
+        "name": "New Zealand"
+      },
+      "urls": {
+        "D2C": "https://www.browcode.co.nz",
+        "B2B": "https://pro.browcode.co.nz"
+      },
+      "is_hreflang_xdefault": false,
+      "languages": [ "en-nz" ],
+      "currency": {
+        "iso_code": "NZD",
+        "symbol": "$"
+      }
+    },
+    {
+      "country": {
+        "iso_code": "US",
+        "name": "United States"
+      },
+      "urls": {
+        "D2C": "https://www.browcode-usa.com",
+        "B2B": "https://pro.browcode-usa.com"
+      },
+      "is_hreflang_xdefault": false,
+      "languages": [ "en-us" ],
+      "currency": {
+        "iso_code": "USD",
+        "symbol": "$"
+      }
+    },
+    {
+      "country": {
+        "iso_code": "CA",
+        "name": "Canada"
+      },
+      "urls": {
+        "D2C": "https://www.browcode-ca.com",
+        "B2B": "https://pro.browcode-ca.com"
+      },
+      "is_hreflang_xdefault": false,
+      "languages": [ "en-ca" ],
+      "currency": {
+        "iso_code": "CAD",
+        "symbol": "$"
+      }
+    },
+    {
+      "country": {
+        "iso_code": "NL",
+        "name": "Netherlands"
+      },
+      "urls": {
+        "D2C": null,
+        "B2B": "https://pro.browcode-nl.com"
+      },
+      "is_hreflang_xdefault": false,
+      "languages": [ "en-nl", "nl-nl" ],
+      "currency": {
+        "iso_code": "EUR",
+        "symbol": "€"
+      }
+    }
+  ]
+}

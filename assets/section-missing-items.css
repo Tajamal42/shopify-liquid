@@ -1,0 +1,90 @@
+.mia-offer {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+
+  padding: 1rem;
+  margin: 2rem 0;
+
+  background-color: white;
+  outline: 1px dashed rgba(var(--color-gold-dkr));
+  animation: borderGlow 1s ease-in-out 5;
+}
+
+@keyframes borderGlow {
+  0% {
+    outline: 1px dashed rgba(var(--color-gold-dkr));
+  }
+
+  50% {
+    outline: 1px dashed rgba(var(--color-gold-m));
+  }
+
+  100% {
+    outline: 1px dashed rgba(var(--color-gold-dkr));
+  }
+}
+
+.mia-offer--in-cart {
+  display: none;
+}
+
+.mia-offer__info {
+  order: 2;
+  flex: 0 1 auto;
+  padding: 1rem;
+}
+
+.mia-offer__product {
+  order: 1;
+  flex: 0 1 25%;
+}
+
+@media screen and (min-width: 750px) {
+  .mia-offer__info {
+    padding: 2rem;
+  }
+
+  .mia-offer__product {
+    max-width: 8rem;
+  }
+}
+
+@media screen and (min-width: 1366px) {
+  .mia-offer__info {
+    padding: 2rem;
+  }
+
+  .mia-offer__product {
+    max-width: 8rem;
+  }
+}
+
+.mia-offer__product-thumbnail {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.mia-offer__heading {
+  margin-top: 0;
+  margin-bottom: 0.2rem;
+
+  font-size: 1.6rem;
+  text-align: center;
+}
+
+.mia-offer__description {
+  font-size: 80%;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Cart */
+
+.shopify-section[id$='__cart-items'] + .section--mia,
+.shopify-section[id$='__cart-items'] + .section--mia .mia-offer {
+  margin-top: 0;
+}

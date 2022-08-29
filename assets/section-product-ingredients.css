@@ -1,0 +1,29 @@
+.ingredients__group-title {
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin: 2rem 0 0.3rem;
+}
+
+.ingredients__group-list {
+  font-size: 1.3rem;
+  line-height: 1.5;
+  letter-spacing: 0.01rem;
+}
+
+.ingredients__content {
+  padding-bottom: 5rem;
+}
+
+.ingredients__title {
+  justify-content: center;
+  text-transform: capitalize;
+}
+
+.ingredients__files {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.ingredients__files:last-child {
+  margin-bottom: 0;
+}

@@ -1,0 +1,146 @@
+:root {
+  --color-gold-ltr: 237, 223, 154;
+  --color-gold-lt: 222, 190, 107;
+  --color-gold-m: 195, 163, 85;
+  --color-gold-dk: 168, 135, 64;
+  --color-gold-dkr: 142, 108, 45;
+
+  --color-black: 3, 3, 3;
+  --color-gray-lt: 200, 200, 200;
+  --color-gray-m: 120, 120, 120;
+  --color-gray-dk: 60, 60, 60;
+  --color-white: 255, 255, 255;
+  --color-off-white: 248, 248, 248;
+  --color-beige: 249, 245, 245;
+
+  --color-error: 160, 25, 25;
+
+  --color-base-text: 3, 3, 3;
+  --color-base-background-1: 255, 255, 255;
+  --color-base-background-2: 255, 255, 255;
+  --color-base-solid-button-labels: 3, 3, 3;
+  --color-base-outline-button-labels: 3, 3, 3;
+  --color-base-accent-1: var(--color-gold-m);
+  --color-base-accent-2: var(--color-gold-m);
+  --payment-terms-background-color: 3, 3, 3;
+}
+
+/* Color custom properties */
+
+:root,
+.color-light,
+.color-beige {
+  --color-text-body         : var(--color-gray-dk);
+  --color-text-heading      : var(--color-black);
+  --color-icon              : var(--color-gold-m);
+  --color-background        : var(--color-white);
+
+  --color-foreground        : var(--color-black);
+
+  --color-link              : var(--color-base-outline-button-labels);
+  --alpha-link              : 0.85;
+
+  --color-button            : var(--color-black);
+  --color-button-text       : var(--color-white);
+  --alpha-button-background : 1;
+  --alpha-button-border     : 1;
+
+  --color-badge-foreground  : var(--color-white);
+  --color-badge-background  : var(--color-gold-m);
+  --color-badge-border      : var(--color-gold-m);
+  --alpha-badge-border      : 0.1;
+
+  --color-card-hover        : var(--color-base-text);
+}
+
+.color-beige {
+  --color-background       : var(--color-beige);
+}
+
+.color-dark,
+.color-gold-m {
+  --color-text-body        : var(--color-off-white);
+  --color-text-heading     : var(--color-white);
+  --color-icon             : var(--color-gold-lt);
+  --color-background       : var(--color-black);
+
+  --color-foreground       : var(--color-off-white);
+
+  --color-link             : var(--color-foreground);
+  --alpha-link             : 0.7;
+
+  --color-button           : var(--color-white);
+  --color-button-text      : var(--color-black);
+
+  --color-badge-foreground : var(--color-black);
+  --color-badge-background : var(--color-white);
+  --color-badge-border     : var(--color-white);
+  --alpha-badge-border     : 1;
+
+  --color-card-hover       : var(--color-white);
+}
+
+.color-gold-m {
+  --color-icon             : var(--color-white);
+  --color-background       : var(--color-gold-m);
+}
+
+.color-foreground-outline-button {
+  --color-foreground: var(--color-base-outline-button-labels);
+}
+
+.color-foreground-light {
+  --color-foreground: var(--color-base-accent-1);
+}
+
+.color-foreground-dark {
+  --color-foreground: var(--color-base-accent-2);
+}
+
+.button--secondary {
+  --color-button: var(--color-base-outline-button-labels);
+  --color-button-text: var(--color-base-outline-button-labels);
+  --alpha-button-background: 0;
+}
+
+.color-beige .button--secondary,
+.color-dark .button--secondary,
+.color-gold-m .button--secondary {
+  --color-button: var(--color-foreground);
+  --color-button-text: var(--color-foreground);
+}
+
+.button--tertiary {
+  --color-button: var(--color-base-outline-button-labels);
+  --color-button-text: var(--color-base-outline-button-labels);
+  --alpha-button-background: 0;
+  --alpha-button-border: 0.2;
+}
+
+.color-beige .button--tertiary,
+.color-dark .button--tertiary,
+.color-gold-m .button--tertiary {
+  --color-button: var(--color-foreground);
+  --color-button-text: var(--color-foreground);
+}
+
+:root,
+.color-icon-text {
+  --color-icon: rgb(var(--color-base-text));
+}
+
+.color-icon-white {
+  --color-icon: rgb(var(--color-white));
+}
+
+.color-icon-black {
+  --color-icon: rgb(var(--color-black));
+}
+
+.color-icon-gold {
+  --color-icon: rgb(var(--color-gold-m));
+}
+
+.color-icon-outline-button {
+  --color-icon: rgb(var(--color-base-outline-button-labels));
+}

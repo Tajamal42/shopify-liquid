@@ -1,0 +1,98 @@
+{%- if shop.metafields.settings.tags.microsoft_uet.enable and shop.metafields.settings.tags.microsoft_uet.tag_id != blank -%}
+  <script>(function(w,d,t,r,u){var f,n,i;w[u]=w[u]||[],f=function(){var o={ti:"{{ shop.metafields.settings.tags.microsoft_uet.tag_id | strip }}"};o.q=w[u],w[u]=new UET(o),w[u].push("pageLoad")},n=d.createElement(t),n.src=r,n.async=1,n.onload=n.onreadystatechange=function(){var s=this.readyState;s&&s!=="loaded"&&s!=="complete"||(f(),n.onload=n.onreadystatechange=null)},i=d.getElementsByTagName(t)[0],i.parentNode.insertBefore(n,i)})(window,document,"script","//bat.bing.com/bat.js","uetq");</script>
+
+  <script>  
+    {%- if template.name == 'cart' -%}
+    {%- liquid
+      if uses_comma_decimals
+        assign cart_total_price = cart.total_price | money_without_currency | replace: '.', '' | replace: ',', '.' | times: 1 | json
+      else
+        assign cart_total_price = cart.total_price | money_without_currency | replace: ',', '' | times: 1 | json
+      endif
+    -%}
+    window.uetq = window.uetq || [];
+    window.uetq.push('event', '', {
+      {%- if shop.metafields.settings.main.shop_country != blank %}
+      'ecomm_prodid': [
+        {% for item in cart.items -%}
+          'shopify_{{ shop.metafields.settings.main.shop_country }}_{{ item.product_id }}_{{ item.variant_id }}'
+        {%- unless forloop.last -%},
+        {% endunless -%}
+        {%- endfor %}
+      ],
+      {%- endif %}
+      'ecomm_pagetype': 'cart',
+      'ecomm_totalvalue': {{ cart_total_price }},
+      'revenue_value': {{ cart_total_price }},
+      'currency': '{{ cart.currency.iso_code }}',
+      'items': [
+        {% for item in cart.items -%}
+          {%- liquid
+            if uses_comma_decimals
+              assign item_price = item.price | money_without_currency | replace: '.', '' | replace: ',', '.' | times: 1 | json
+            else
+              assign item_price = item.price | money_without_currency | replace: ',', '' | times: 1 | json
+            endif
+          -%}
+          {
+            'id': 'shopify_{{ shop.metafields.settings.main.shop_country }}_{{ item.product_id }}_{{ item.variant_id }}',
+            'quantity': {{ item.quantity }},
+            'price': {{ item_price }}
+          }
+        {%- unless forloop.last -%},
+        {% endunless -%}
+        {%- endfor %}
+        {%- assign item_price = nil -%}
+      ]
+    });
+    
+    {%- elsif template.name == 'product' -%}
+    window.uetq = window.uetq || [];
+    window.uetq.push('event', '', {
+      {%- if shop.metafields.settings.main.shop_country != blank %}
+      'ecomm_prodid': 'shopify_{{ shop.metafields.settings.main.shop_country }}_{{ product.id }}_{{ product.selected_or_first_available_variant.id }}',
+      {%- endif %}
+      'ecomm_pagetype': 'product'
+    });
+
+    {%- elsif template.name == 'collection' %}
+    window.uetq = window.uetq || [];
+    window.uetq.push('event', '', {
+      'ecomm_category': '{{ collection.id }}',
+      {%- if shop.metafields.settings.main.shop_country != blank %}
+      'ecomm_prodid': [
+        {% for product in collection.products limit: 50 -%}
+          'shopify_{{ shop.metafields.settings.main.shop_country }}_{{ product.id }}_{{ product.selected_or_first_available_variant.id }}'
+        {%- unless forloop.last -%},
+        {% endunless -%}
+        {%- endfor %}
+      ],
+      {%- endif %}
+      'ecomm_pagetype': 'category'
+    });
+
+    {%- elsif template.name == 'search' -%}
+    window.uetq = window.uetq || [];
+    window.uetq.push('event', '', {
+      'ecomm_query': '{{ search.terms }}'
+      {%- if shop.metafields.settings.main.shop_country != blank %}
+      'ecomm_prodid': [
+        {% assign product_results = search.results | where: 'object_type', 'product' -%}
+        {% for product in product_results -%}
+          'shopify_{{ shop.metafields.settings.main.shop_country }}_{{ product.id }}_{{ product.selected_or_first_available_variant.id }}'
+        {%- unless forloop.last -%},
+        {% endunless -%}
+        {%- endfor %}
+      ],
+      {%- endif %}
+      'ecomm_pagetype': 'searchresults'
+    });
+
+    {%- elsif template.name == 'index' -%}
+    window.uetq = window.uetq || [];
+    window.uetq.push('event', '', {
+      'ecomm_pagetype': 'home'
+    });
+    {%- endif -%}
+  </script>
+{%- endif -%}

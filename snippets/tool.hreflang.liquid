@@ -1,0 +1,41 @@
+{% comment %}theme-check-disable{% endcomment %}
+{%- if settings.enable_hreflang -%}
+  {%- liquid
+    case template.name
+      when 'product'
+        assign target = product
+      when 'collection'
+        assign target = collection
+      when 'page'
+        assign target = page
+      when 'blog'
+        assign target = blog
+      when 'article'
+        assign target = article
+      when 'index'
+        assign target = shop
+    endcase
+  -%}
+
+  {%- if target != blank -%}
+    {%- assign target_countries = target.metafields.seo.hreflang | split: '|' -%}
+    {%- assign all_storefronts = shop.metafields.settings.hreflang.all_storefronts -%}
+
+    {%- unless target_countries == blank and all_storefronts == blank %}
+      {%- assign shop_mode = shop.metafields.settings.main.shop.mode -%}
+      {%- for storefront in all_storefronts -%}
+        {%- if target_countries contains storefront.country.iso_code -%}
+          {%- assign storefront_url = storefront.urls[shop_mode] -%}
+          {%- if storefront_url != blank and storefront.languages != blank -%}
+            {%- for language in storefront.languages -%}
+              <link rel="alternate" hreflang="{{ language }}" href="{{ storefront_url }}{%- if forloop.index > 1 -%}/{{ language | split: '-' | first }}{%- endif -%}{%- unless target == shop -%}{{ target.url }}{%- endunless -%}" />
+            {%- endfor -%}
+          {%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- if shop.metafields.settings.hreflang.xdefault.urls[shop_mode] != blank -%}
+        <link rel="alternate" hreflang="x-default" href="{{ shop.metafields.settings.hreflang.xdefault.urls[shop_mode] }}" />
+      {%- endif -%}
+    {%- endunless -%}
+  {%- endif -%}
+{%- endif -%}

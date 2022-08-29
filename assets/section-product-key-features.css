@@ -1,0 +1,10 @@
+.product-key-features-section .details__title {
+  justify-content: center;
+  text-transform: capitalize;
+}
+
+@media screen and (min-width: 750px) {
+  .product-key-features-section .details__title {
+    justify-content: center;
+  }
+}

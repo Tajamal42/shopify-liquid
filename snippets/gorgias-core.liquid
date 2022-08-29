@@ -1,0 +1,11 @@
+{%- if shop.metafields.chat.enable and shop.metafields.chat.gorgias_application_id != blank -%}
+  <script id="gorgias-chat-widget-install-v2" src="https://config.gorgias.chat/gorgias-chat-bundle-loader.js?applicationId={{ shop.metafields.chat.gorgias_application_id }}"></script>
+  <style>
+    @media (max-width: 750px) {
+      #chat-button {
+        display: none;
+        pointer-events: none;
+      }
+    }
+  </style>
+{%- endif -%}

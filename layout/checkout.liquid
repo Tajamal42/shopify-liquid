@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="{{ locale }}" dir="{{ direction }}" class="{{ checkout_html_classes }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, user-scalable=0">
+    <meta name="referrer" content="origin">
+
+    {% comment %}theme-check-disable RemoteAsset{% endcomment %}
+    {%- render 'tool.tag-gtm' -%}
+
+    {%- if shop.metafields.settings.tags.google_ads.purchase_conversion.id != blank -%}
+      <script async src="https://www.googletagmanager.com/gtag/js?id={{ shop.metafields.settings.tags.google_ads.purchase_conversion.id }}"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        {% if shop.metafields.settings.tags.ga.tracking_id != blank -%}
+        gtag('config', '{{ shop.metafields.settings.tags.ga.tracking_id }}'{% if shop.metafields.settings.tags.ga.linker != blank %}, {
+          'linker': {
+            'accept_incoming': {{ shop.metafields.settings.tags.ga.linker.accept_incoming | json }},
+            'domains': {{ shop.metafields.settings.tags.ga.linker.domains | json }}
+          }
+        }{%- endif -%});
+        {% endif -%}
+        gtag('config', '{{ shop.metafields.settings.tags.google_ads.purchase_conversion.id }}', { 'allow_enhanced_conversions': true });
+      </script>
+    {%- endif -%}
+
+    {%- liquid
+      assign currencies_using_comma_decimals = 'ANG,ARS,BRL,BYN,BYR,CLF,CLP,COP,CRC,CZK,DKK,EUR,HRK,HUF,IDR,ISK,MZN,NOK,PLN,RON,RUB,SEK,TRY,UYU,VES,VND' | split: ','
+      assign uses_comma_decimals = false
+      if currencies_using_comma_decimals contains cart.currency.iso_code
+        assign uses_comma_decimals = true
+      endif
+    -%}
+
+    {%- liquid
+      render 'tool.data-layer', uses_comma_decimals: uses_comma_decimals
+      render 'tool.tag-facebook', uses_comma_decimals: uses_comma_decimals
+      render 'tool.tag-pinterest', uses_comma_decimals: uses_comma_decimals
+      render 'tool.tag-tiktok', uses_comma_decimals: uses_comma_decimals
+      render 'tool.tag-microsoft-uet', uses_comma_decimals: uses_comma_decimals
+    -%}
+
+    <script src="{{ 'checkout-events-tracking.js' | asset_url }}" defer></script>
+
+    {% comment %}theme-check-enable RemoteAsset{% endcomment %}
+
+    <link rel="icon" type="image/png" href="{{ 'favicon.png' | asset_img_url: 'master' }}">
+
+    <title>{{ page_title }}</title>
+
+    {{ content_for_header }}
+
+    {{ checkout_stylesheets }}
+
+    <style>
+      .brow-code__logo--new {
+        display: inline-block;
+      }
+
+      .brow-code__logo--new img {
+        width: 150px;
+      }
+
+      @media screen and (min-width: 768px) {
+        .brow-code__logo--new img {
+          width: 200px;
+          margin: 0.5rem;
+        }
+      }
+
+      @media screen and (min-width: 1024px) {
+        .brow-code__logo--new img {
+          width: 150px;
+          margin: 2rem 0;
+        }
+      }
+
+      @media screen and (min-width: 1440px) {
+        .brow-code__logo--new img {
+          width: 200px;
+          margin: 2rem 0;
+        }
+      }
+      /* Brow Code */
+      .brow-code__logo {
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: center;
+
+        margin: 0 0 2rem;
+      }
+    </style>
+    {{ checkout_scripts }}
+  </head>
+  <body>
+    {%- liquid
+      render 'tool.tag-gtm', noscript: true
+      render 'tool.tag-facebook', uses_comma_decimals: uses_comma_decimals, noscript: true
+      render 'tool.tag-pinterest', uses_comma_decimals: uses_comma_decimals, noscript: true
+
+      assign logo = 'logo-' | append: shop.metafields.settings.main.shop.mode | append: '-default'
+    -%}
+
+    {{ skip_to_content_link }}
+
+    {% comment %}theme-check-disable RemoteAsset,ImgLazyLoading,ImgWidthAndHeight{% endcomment %}
+    <header class="banner" data-header role="banner">
+      <div class="wrap">
+        <a class="logo logo--center" href="https://{{ shop.permanent_domain }}">
+          <picture class="brow-code__logo--new">
+            <source 
+              srcset="{{ logo | append: '_desktop.svg' | asset_url }}"
+              media="(min-width: 1024px)"
+            />
+            <img 
+              src="{{ logo | append: '_mobile.svg' | asset_url }}" 
+              alt="Brow Code"
+            />
+          </picture>
+        </a>
+      </div>
+    </header>
+
+    {{ order_summary_toggle }}
+    <div class="content" data-content>
+      <div class="wrap">
+        <div class="main">
+          <header class="main__header" role="banner">
+            <a class="logo logo--center" href="https://{{ shop.permanent_domain }}">
+              <picture class="brow-code__logo--new">
+                <source 
+                  srcset="{{ logo | append: '_desktop.svg' | asset_url }}"
+                  media="(min-width: 1024px)"
+                />
+                <img 
+                  src="{{ logo | append: '_mobile.svg' | asset_url }}" 
+                  alt="Brow Code"
+                />
+              </picture>
+            </a>
+
+            {{ breadcrumb }}
+            {{ alternative_payment_methods }}
+          </header>
+          <main class="main__content" role="main">
+            {{ content_for_layout }}
+          </main>
+          <footer class="main__footer" role="contentinfo">
+            {{ content_for_footer }}
+          </footer>
+        </div>
+        <aside class="sidebar" role="complementary">
+          <div class="sidebar__header">
+            {{ content_for_logo }}
+          </div>
+          <div class="sidebar__content">
+            {{ content_for_order_summary }}
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    {{ tracking_code }}
+  </body>
+</html>

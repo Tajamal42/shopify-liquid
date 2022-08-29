@@ -1,0 +1,410 @@
+{{ 'component-cart.css' | asset_url | stylesheet_tag }}
+{{ 'component-totals.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+{{ 'component-discounts.css' | asset_url | stylesheet_tag }}
+
+<div class="page-width{% if cart == empty %} is-empty{% endif %}" id="main-cart-footer" data-id="{{ section.id }}">
+  <div>
+    <div class="cart__footer">
+      {%- if section.settings.show_cart_note -%}
+        <cart-note class="cart__note field">
+          <label for="Cart-note">{{ 'sections.cart.note' | t }}</label>
+          <textarea class="text-area text-area--resize-vertical field__input" name="note" form="cart" id="Cart-note" placeholder="{{ 'sections.cart.note' | t }}">{{ cart.note }}</textarea>
+        </cart-note>
+      {%- endif -%}
+
+      <div class="cart__blocks">
+        <div class="js-contents" {{ block.shopify_attributes }}>
+          {%- if section.settings.show_donations -%}
+            <div data-round-up-via-pledgeling="{{ shop.metafields.donations.gfw_round_up_id }}"></div>
+          {%- endif -%}
+
+          <div class="totals">
+            <h3 class="totals__subtotal">{{ 'sections.cart.subtotal' | t }}</h3>
+            <p class="totals__subtotal-value">{{ cart.total_price | money_with_currency }}</p>
+          </div>
+
+          <div>
+            {%- if cart.cart_level_discount_applications.size > 0 -%}
+              <ul class="discounts list-unstyled" role="list" aria-label="{{ 'customer.order.discount' | t }}">
+                {%- for discount in cart.cart_level_discount_applications -%}
+                  <li class="discounts__discount discounts__discount--end">
+                    {%- render 'icon-discount' -%}
+                    {{ discount.title }}
+                    (-{{ discount.total_allocated_amount | money }})
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </div>
+
+          <small class="tax-note caption-large rte">
+            {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+              {{ 'sections.cart.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url }}
+            {%- elsif cart.taxes_included -%}
+              {{ 'sections.cart.taxes_included_but_shipping_at_checkout' | t }}
+            {%- elsif shop.shipping_policy.body != blank -%}
+              {{ 'sections.cart.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url }}
+            {%- else -%}
+              {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
+            {%- endif -%}
+          </small>
+        </div>
+        
+        {% for block in section.blocks %}
+          {%- case block.type -%}
+            {%- when '@app' -%}
+              {% render block %}
+            {%- when 'subtotal' -%}
+              <div class="js-contents" {{ block.shopify_attributes }}>
+                <div class="totals">
+                  <h3 class="totals__subtotal">{{ 'sections.cart.subtotal' | t }}</h3>
+                  <p class="totals__subtotal-value">{{ cart.total_price | money_with_currency }}</p>
+                </div>
+
+                <div>
+                  {%- if cart.cart_level_discount_applications.size > 0 -%}
+                    <ul class="discounts list-unstyled" role="list" aria-label="{{ 'customer.order.discount' | t }}">
+                      {%- for discount in cart.cart_level_discount_applications -%}
+                        <li class="discounts__discount discounts__discount--end">
+                          {%- render 'icon-discount' -%}
+                          {{ discount.title }}
+                          (-{{ discount.total_allocated_amount | money }})
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+                </div>
+
+                <small class="tax-note caption-large rte">
+                  {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+                    {{ 'sections.cart.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                  {%- elsif cart.taxes_included -%}
+                    {{ 'sections.cart.taxes_included_but_shipping_at_checkout' | t }}
+                  {%- elsif shop.shipping_policy.body != blank -%}
+                    {{ 'sections.cart.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url }}
+                  {%- else -%}
+                    {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
+                  {%- endif -%}
+                </small>
+              </div>
+            {%- when 'cart_attribute' -%}
+              {% if block.settings.title != blank %}
+                <cart-attribute
+                  class="{%- liquid
+                    if request.design_mode
+                      echo 'is-ready'
+                    elsif customer
+                      if block.settings.included_countries == blank and block.settings.excluded_countries == blank
+                        echo 'is-ready'
+                      elsif block.settings.included_countries contains customer.default_address.country_code
+                        echo 'is-ready'
+                      elsif block.settings.excluded_countries contains customer.default_address.country_code
+                        echo 'hidden'
+                      else
+                        echo 'loading'
+                      endif
+                    else
+                      echo 'loading'
+                    endif
+                  -%}"
+                  data-included-countries="{{ block.settings.included_countries }}"
+                  data-excluded-countries="{{ block.settings.excluded_countries }}"
+                  data-customer-country="{{ customer.default_address.country_code }}"
+                  {{ block.shopify_attributes }}
+                >
+                  <p class="cart__attribute cart-attribute__field">
+                    <input type="checkbox" form="cart"
+                      id="CartAttribute_{{ block.settings.title | handleize }}"
+                      class="cart-attribute__input"                    
+                      name="attributes[{{ block.settings.title }}]"
+                      value="{% if block.settings.attribute_value != blank %}{{ block.settings.attribute_value }}{% else %}Yes{% endif %}"
+                      {% if block.settings.attribute_value != blank %}
+                        {% if cart.attributes[block.settings.title] == block.settings.attribute_value or block.settings.checked %} checked{% endif %}
+                      {% else %}
+                        {% if cart.attributes[block.settings.title] == "Yes" or block.settings.checked %} checked{% endif %}
+                      {% endif %}
+                      {% if block.settings.required %} required{% endif %}
+                    >
+                    <label class="cart-attribute__label rte" for="CartAttribute_{{ block.settings.title | handleize }}">                    
+                      {{ block.settings.description | remove: '<p>' | remove: '</p>' }}
+                    </label>
+                  </p>
+                </cart-attribute>
+              {% endif %}
+            {%- else -%}
+              <div class="cart__ctas" {{ block.shopify_attributes }}>
+                <noscript>
+                  <button type="submit" class="cart__update-button button button--secondary" form="cart">
+                    {{ 'sections.cart.update' | t }}
+                  </button>
+                </noscript>
+
+                <button type="submit" id="checkout" class="cart__checkout-button button" name="checkout"{% if cart == empty %} disabled{% endif %} form="cart">
+                  {{ 'sections.cart.checkout' | t }}
+                </button>
+              </div>
+
+              {%- if block.settings.payment_icons_enable -%}
+                <div class="cart__checkout-payment-icons">
+                  <ul class="list list-payment" role="list">
+                    {%- assign enabled_payment_types = shop.enabled_payment_types -%}
+
+                    {%- if shop.metafields.zip.enable -%}
+                      <li class="list-payment__item">
+                        {% render 'icon-zip-pay' %}
+                      </li>
+                    {% endif -%}
+
+                    {%- if shop.metafields.afterpay.enable -%}
+                      {%- assign enabled_payment_types = "afterpay" | concat: enabled_payment_types -%}
+                    {% endif -%}
+
+                    {% for type in enabled_payment_types %}
+                      <li class="list-payment__item">
+                        {{ type | payment_type_svg_tag: class: 'icon icon--full-color' }}
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              {%- endif -%}
+
+              {%- if additional_checkout_buttons -%}
+                {%- if block.settings.express_payment_icons_enable -%}
+                  <div class="cart__dynamic-checkout-separator">
+                    <span>{{ 'general.cart.express_checkout' | t }}</span>
+                  </div>
+
+                  <div class="cart__dynamic-checkout-buttons additional-checkout-buttons">
+                    {{ content_for_additional_checkout_buttons }}
+                  </div>
+                {% endif -%}
+              {%- endif -%}
+          {%- endcase -%}
+        {% endfor %}
+
+        <div id="cart-errors"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% javascript %}
+  class CartNote extends HTMLElement {
+    constructor() {
+      super();
+
+      this.addEventListener('change', debounce((event) => {
+        const body = JSON.stringify({ note: event.target.value });
+        fetch(`${routes.cart_update_url}`, {...fetchConfig(), ...{ body }});
+      }, 300))
+    }
+  }
+
+  customElements.define('cart-note', CartNote);
+
+  class CartAttribute extends HTMLElement {
+    constructor() {
+      super();
+
+      if (this.classList.contains('is-ready')) return;
+
+      this.input = this.querySelector('input');
+      this.includedCountries = this.dataset.includedCountries.split(',');
+      this.excludedCountries = this.dataset.excludedCountries.split(',');
+      this.customerCountry = this.dataset.customerCountry;
+
+      this.init();
+    }
+
+    init() {
+      if (this.dataset.includedCountries == '' && !this.dataset.excludedCountries) {
+        // console.log('Default to show to all countries: no included or excluded countries set');
+        this.classList.remove('loading');
+        this.classList.add('is-ready');
+        return;
+      }
+
+      if (this.customerCountry && !this.includedCountries.includes(this.customerCountry)) {
+        // console.log('Hide: customer country found and does not match an included country');
+        this.input.removeAttribute('required');
+        this.input.removeAttribute('checked');
+        this.classList.remove('loading');
+        this.classList.add('hidden');
+        return;
+      }
+
+      if (this.customerCountry && this.excludedCountries.includes(this.customerCountry)) {
+        // console.log('Hide: customer country found and matches an excluded country');
+        this.input.removeAttribute('required');
+        this.input.removeAttribute('checked');
+        this.classList.remove('loading');
+        this.classList.add('hidden');
+        return;
+      }
+  
+      if (Shopify.designMode) {
+        console.log('Show attribute: design Mode On');
+      } else {
+        const getGeolocation = new Promise((resolve, reject) => {
+          if (localStorage.getItem('geoloc')) {
+            resolve(JSON.parse(localStorage.getItem('geoloc')));
+            return;
+          }        
+          
+          fetch('//api.ipbase.com/v2/info/', { headers: { 'apikey': '425e73a0-4cc3-11ec-8013-3f58ddbf2fe5' }})
+            .then(response => response.json())
+            .then(responseJson => {
+              localStorage.setItem('geoloc', JSON.stringify(responseJson.data));
+              resolve(responseJson.data);
+              return;
+            });
+        });
+
+        getGeolocation.then(result => {
+          if (!this.includedCountries.includes(result.location.country.alpha2) || this.excludedCountries.includes(result.location.country.alpha2)) {
+            // console.log('... Hide: customer country does not match an included country or matches an excluded country');
+            this.input.removeAttribute('required');
+            this.input.removeAttribute('checked');
+            this.classList.remove('loading');
+            this.classList.add('hidden');
+            return;
+          };
+
+          // console.log('... Show: customer country matches an included country or doesnt match an excluded country');
+          this.classList.remove('loading');
+          this.classList.add('is-ready');
+        });
+      }
+    }
+
+    async getGeolocationData() {
+      return await fetch('//api.ipbase.com/v2/info/', { headers: { 'apikey': '425e73a0-4cc3-11ec-8013-3f58ddbf2fe5' }})
+        .then(response => response.json())
+        .then(responseJson => {
+          localStorage.setItem('geoloc', JSON.stringify(responseJson.data));
+          return responseJson.data;
+        });
+    }
+  }
+
+  customElements.define('cart-attribute', CartAttribute);
+{% endjavascript %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    function isIE() {
+      const ua = window.navigator.userAgent;
+      const msie = ua.indexOf('MSIE ');
+      const trident = ua.indexOf('Trident/');
+
+      return (msie > 0 || trident > 0);
+    }
+
+    if (!isIE()) return;
+    const cartSubmitInput = document.createElement('input');
+    cartSubmitInput.setAttribute('name', 'checkout');
+    cartSubmitInput.setAttribute('type', 'hidden');
+    document.querySelector('#cart').appendChild(cartSubmitInput);
+    document.querySelector('#checkout').addEventListener('click', function(event) {
+      document.querySelector('#cart').submit();
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.main-cart-footer.name",
+  "class": "cart__footer-wrapper",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_cart_note",
+      "default": false,
+      "label": "t:sections.main-cart-footer.settings.show_cart_note.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_donations",
+      "default": false,
+      "label": "t:sections.main-cart-footer.settings.show_donations.label"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "cart_attribute",
+      "name": "t:sections.main-cart-footer.blocks.cart_attribute.name",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "default": "Terms and conditions",
+          "label": "t:sections.main-cart-footer.blocks.cart_attribute.settings.title.label",
+          "info": "t:sections.main-cart-footer.blocks.cart_attribute.settings.title.info"
+        },
+        {
+          "type": "text",
+          "id": "attribute_value",
+          "label": "t:sections.main-cart-footer.blocks.cart_attribute.settings.attribute_value.label",
+          "info": "t:sections.main-cart-footer.blocks.cart_attribute.settings.attribute_value.info"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "default": "<p>I have read and accept the <a href='\/pages\/terms-and-conditions' target='_blank' rel='noopener'>Terms and Conditions</a></p>",
+          "label": "t:sections.main-cart-footer.blocks.cart_attribute.settings.description.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "required",
+          "default": false,
+          "label": "t:sections.main-cart-footer.blocks.cart_attribute.settings.required.label",
+          "info": "t:sections.main-cart-footer.blocks.cart_attribute.settings.required.info"
+        },
+        {
+          "type": "checkbox",
+          "id": "checked",
+          "default": false,
+          "label": "t:sections.main-cart-footer.blocks.cart_attribute.settings.checked.label",
+          "info": "t:sections.main-cart-footer.blocks.cart_attribute.settings.checked.info"
+        },
+        {
+          "type": "text",
+          "id": "included_countries",
+          "label": "t:sections.main-cart-footer.blocks.cart_attribute.settings.included_countries.label",
+          "info": "t:sections.main-cart-footer.blocks.cart_attribute.settings.included_countries.info"
+        },
+        {
+          "type": "text",
+          "id": "excluded_countries",
+          "label": "t:sections.main-cart-footer.blocks.cart_attribute.settings.excluded_countries.label",
+          "info": "t:sections.main-cart-footer.blocks.cart_attribute.settings.excluded_countries.info"
+        }
+      ]
+    },
+    {
+      "type": "buttons",
+      "name": "t:sections.main-cart-footer.blocks.buttons.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "payment_icons_enable",
+          "default": true,
+          "label": "t:sections.main-cart-footer.blocks.buttons.settings.payment_icons_enable.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "express_payment_icons_enable",
+          "default": true,
+          "label": "t:sections.main-cart-footer.blocks.buttons.settings.express_payment_icons_enable.label"
+        }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,167 @@
+{% comment %}
+    Renders a list of product's price (regular, sale)
+
+    Accepts:
+    - product: {Object} Product Liquid object (optional)
+    - use_variant: {Boolean} Renders selected or first variant price instead of overall product pricing (optional)
+    - show_badges: {Boolean} Renders 'Sale' and 'Sold Out' tags if the product matches the condition (optional)
+    - price_class: {String} Adds a price class to the price element (optional)
+    - country_restricted: {Boolean} Prevents the display of prices when the product is not available in the localization country
+
+    Usage:
+    {% render 'price', product: product %}
+{% endcomment %}
+{%- liquid
+  if use_variant
+    assign target = product.selected_or_first_available_variant
+  else
+    assign target = product
+  endif
+
+  assign compare_at_price = target.compare_at_price
+  assign price = target.price | default: 1999
+  assign available = target.available | default: false
+  assign money_price = price | money
+  if settings.currency_code_enabled
+    assign money_price = price | money_with_currency
+  endif
+
+  assign trade_store = false
+  if shop.metafields.settings.main.shop.mode == 'B2B'
+    assign trade_store = true    
+  endif
+
+  for tag in product.tags
+    if tag contains '_offer'
+      assign on_offer = true
+    endif
+
+    if tag contains '_sale'
+      assign on_sale = true
+    endif
+
+    if tag == '_trade-only'
+      assign is_trade_only = true
+    endif
+  endfor
+
+  if target == product and product.price_varies
+    assign money_price = 'products.product.price.from_price_html' | t: price: money_price
+  endif
+-%}
+
+{%- unless product.tags contains '_coming-soon' or product.tags contains '_discontinued' -%}
+  {%- if trade_store == false or trade_store and customer-%}
+    <div class="price
+      {%- if trade_store %}{% if is_trade_only %} price--trade-exclusive{% endif %}{% if compare_at_price > price %}{% if on_offer %} price--on-offer{% elsif on_sale %} price--on-sale{% else %} price--trade{% endif %}{% else %} price--regular{% endif %}{% else %}{% if compare_at_price > price %}{% if on_offer %} price--on-offer{% else %} price--on-sale{% endif %}{% else %} price--regular{% endif %}{% endif -%}
+      {%- if available == false %} price--sold-out{% endif -%}
+      {%- if price_class %} {{ price_class }}{% endif -%}
+      {%- if product.price_varies == false and product.compare_at_price_varies %} price--no-compare{% endif -%}
+      {%- if show_badges %} price--show-badge{% endif -%}"
+    >
+      <div>
+        {% comment %}
+          REGULAR PRICE
+          PRO: trade-only, not sale, not offer
+          DIY: not sale, not offer
+        {% endcomment %}
+        <div class="price__regular">
+          <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.regular_price' | t }}</span>
+          <span class="price__retail price-item price-item--regular">
+            {{- money_price -}}
+          </span>
+        </div>
+
+        {% comment %}
+          TRADE PRICE
+          PRO: not sale, on_offer
+          DIY: n/a
+        {% endcomment %}
+        {%- if trade_store -%}
+          <div class="price__trade">
+            <span class="visually-hidden visually-hidden--inline">{{- 'products.product.price.trade_price' | t -}}</span>
+            <span class="price-item price-item--trade">
+              {{- money_price -}}
+            </span>
+            <span class="price-label price-label--rrp">{{ 'products.product.price.rrp_abbr_html' | t }}&nbsp;</span>
+            <span class="price-item price-item--rrp price-item--last">
+              <s>{{- compare_at_price | money -}}</s>
+            </span>
+          </div>
+        {%- endif -%}
+
+        {% comment %}
+          SALE PRICE
+          PRO: sale, not offer
+          DIY: sale, not offer
+        {% endcomment %}
+        <div class="price__sale">
+          <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.sale_price' | t }}</span>
+          <span class="price-item price-item--sale">
+            {{- money_price -}}
+          </span>
+          {%- unless product.price_varies == false and product.compare_at_price_varies %}
+            <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.regular_price' | t }}</span>
+            <span class="price-item price-item--regular price-item--last">
+              <s>{{- compare_at_price | money -}}</s>
+            </span>
+          {%- endunless -%}
+        </div>
+
+        {% comment %}
+          OFFER PRICE
+          PRO: not sale, on_offer
+          DIY: not sale, on_offer
+        {% endcomment %}
+        <div class="price__offer">
+          <span class="visually-hidden visually-hidden--inline">{{- 'products.product.price.regular_price' | t -}}</span>
+          <span class="price-item price-item--offer">
+            {{- money_price -}}
+          </span>
+          <span class="price-label price-label--valued-at">{{ 'products.product.price.valued_at' | t }}&nbsp;</span>
+          <span class="price-item price-item--valued-at price-item--last">
+            <s>{{- compare_at_price | money -}}</s>
+          </span>
+        </div>
+
+        {% comment %}
+          UNIT PRICE
+        {% endcomment %}
+        <small class="unit-price caption{% if product.selected_or_first_available_variant.unit_price_measurement == nil %} hidden{% endif %}">
+          <span class="visually-hidden">{{ 'products.product.price.unit_price' | t }}</dt>
+          <span class="price-item price-item--last">
+            <span>{{- product.selected_or_first_available_variant.unit_price | money -}}</span>
+            <span aria-hidden="true">/</span>
+            <span class="visually-hidden">&nbsp;{{ 'accessibility.unit_price_separator' | t }}&nbsp;</span>
+            <span>
+              {%- if product.selected_or_first_available_variant.unit_price_measurement.reference_value != 1 -%}
+                {{- product.selected_or_first_available_variant.unit_price_measurement.reference_value }}
+              {%- endif -%}
+              {{ product.selected_or_first_available_variant.unit_price_measurement.reference_unit -}}
+            </span>
+          </span>
+        </small>
+      </div>
+      {%- if show_badges -%}
+        {% comment %}
+        // NOT READY FOR PRODUCTION
+        <span class="badge price__badge-trade-exclusive badge--trade-exclusive">
+          {{ 'products.product.trade_only' | t }}
+        </span>
+        
+        <span class="badge price__badge-offer badge--on-offer">
+          {{ 'products.product.on_offer' | t }}
+        </span>
+        {% endcomment %}
+
+        <span class="badge price__badge-sale badge--on-sale">
+          {{ 'products.product.on_sale' | t }}
+        </span>
+        
+        <span class="badge price__badge-sold-out badge--sold-out">
+          {{ 'products.product.sold_out' | t }}
+        </span>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+{%- endunless -%}

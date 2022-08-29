@@ -1,0 +1,860 @@
+{{ 'section-image-banner.css' | asset_url | stylesheet_tag }}
+{{ 'component-newsletter.css' | asset_url | stylesheet_tag }}
+{{ 'newsletter-section.css' | asset_url | stylesheet_tag }}
+{{ 'section-email-signup-banner.css' | asset_url | stylesheet_tag }}
+{{ 'component-rte.css' | asset_url | stylesheet_tag }}
+
+{{ 'video-section.css' | asset_url | stylesheet_tag }}
+{{ 'component-deferred-media.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  #Banner-{{ section.id }}::after {
+    opacity: {{ section.settings.image_overlay_opacity | divided_by: 100.0 }};
+  }
+
+  {%- if section.settings.image_height == 'fullscreen' -%}
+    @media screen and (max-width: 749px) {
+      #Banner-{{ section.id }}:not(.banner--mobile-bottom) .banner__content::before {
+        {%- liquid
+          case section.settings.mobile_aspect_ratio
+            when '32-9' 
+              echo 'padding-bottom: 28.125%;'
+            when '16-9'
+              echo 'padding-bottom: 56.25%;'
+            when '6-4'
+              echo 'padding-bottom: 66.6%;'
+            when '4-3'
+              echo 'padding-bottom: 75%;'
+            when 'square'
+              echo 'padding-bottom: 100%;'
+            when '4-5'
+              echo 'padding-bottom: 125%;'
+            when '9-16'
+              echo 'padding-bottom: 177.77%;'
+            else
+              echo 'padding-bottom: 125%;'
+          endcase
+        -%}
+        content: '';
+        display: block;
+      }      
+    }
+
+    #Banner-{{ section.id }}::before {
+      {%- liquid
+        case section.settings.desktop_aspect_ratio
+          when '32-9' 
+            echo 'padding-bottom: calc(28.125% - 305px);'
+          when '16-9'
+            echo 'padding-bottom: calc(56.25% - 305px);'
+          when '6-4'
+            echo 'padding-bottom: calc(66.6% - 305px);'
+          when '4-3'
+            echo 'padding-bottom: calc(75% - 305px);'
+          when 'square'
+            echo 'padding-bottom: calc(100% - 305px);'
+          when '4-5'
+            echo 'padding-bottom: calc(125% - 305px);'
+          when '9-16'
+            echo 'padding-bottom: calc(177.77% - 305px);'
+          else
+            echo 'padding-bottom: calc(56.25% - 305px);'
+        endcase
+      -%}
+      content: '';
+      display: block;
+    }
+
+  {%- elsif section.settings.image_height == 'adapt-image' and section.settings.image != blank -%}
+    @media screen and (max-width: 749px) {
+      #Banner-{{ section.id }}:not(.banner--mobile-bottom) .banner__content::before {
+        padding-bottom: {{ 1 | divided_by: section.settings.image.aspect_ratio | times: 100 }}%;
+        content: '';
+        display: block;
+      }
+    }
+
+    #Banner-{{ section.id }}::before,
+    #Banner-{{ section.id }} .banner__media::before {
+      padding-bottom: {{ 1 | divided_by: section.settings.image.aspect_ratio | times: 100 }}%;
+      content: '';
+      display: block;
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+<div id="Banner-{{ section.id }}" class="email-signup-banner video-section banner banner--content-align-{{ section.settings.desktop_content_alignment }} banner--content-align-mobile-{{ section.settings.mobile_content_alignment }} banner--{{ section.settings.image_height }}{% if section.settings.image_height == 'adapt-image' and section.settings.image != blank %} banner--adapt{% endif %}{% if section.settings.show_text_below %} banner--mobile-bottom{%- endif -%}{% if section.settings.show_text_box == false %} banner--transparent{% endif %}">
+
+  {%- if section.settings.show_background_video -%}
+    <div class="banner__media{% if section.settings.image != blank %} media{% endif %}">
+      {%- assign video_mobile_blocks = section.blocks | where: "type", "mobile" -%}
+      {%- assign video_desktop_blocks = section.blocks | where: "type", "desktop" -%}
+      {%- assign video_blocks = video_mobile_blocks | concat: video_desktop_blocks -%}
+
+      {%- for block in video_blocks -%}
+        {%- liquid
+          if video_desktop_blocks.size == 1 and block.type == 'mobile'
+            assign video_class = 'medium-up-hide'
+          elsif video_mobile_blocks.size == 1 and block.type == 'desktop'
+            assign video_class = 'small-hide'
+          endif
+        -%}
+        <div class="video-section__media video-section__media--{{ block.type }}{% if block.type == 'mobile' %} video-section__media--{{ section.settings.mobile_aspect_ratio }}{% elsif block.type == 'desktop' %} video-section__media--{{ section.settings.desktop_aspect_ratio }}{% endif %} {{ video_class }}{% if request.design_mode %} video-section__media--design-mode{% endif %}">
+          <video
+            disableremoteplayback
+            x-webkit-airplay="deny"
+    
+            {%- if section.settings.controls %}
+              controls
+              controlslist="nodownload noremoteplayback"
+            {%- endif %}
+            {%- if section.settings.autoplay %} autoplay muted {%- endif %}
+            {%- if section.settings.playsinline %} playsinline {%- endif %}
+            {%- if section.settings.loop %} loop {%- endif %}
+            {%- if block.settings.preload == 'metadata' %} preload="metadata"
+            {%- elsif block.settings.preload == 'preload' %} preload {%- endif %}
+    
+            src="{{ block.settings.video_url }}"
+            {%- if block.settings.poster != blank %}
+              poster="{{ block.settings.poster | img_url: 'master' }}"
+            {%- endif %}
+          >
+            <a href="{{ block.settings.video_url }}" class="video-section__poster media media--transparent {% if section.settings.poster == blank %} video-section__placeholder{% endif %}">
+              {%- if block.settings.poster != blank -%}
+                <img
+                  srcset="{%- if block.settings.poster.width >= 375 -%}{{ block.settings.poster | img_url: '375x' }} 375w,{%- endif -%}
+                    {%- if block.settings.poster.width >= 750 -%}{{ block.settings.poster | img_url: '750x' }} 750w,{%- endif -%}
+                    {%- if block.settings.poster.width >= 1100 -%}{{ block.settings.poster | img_url: '1100x' }} 1100w,{%- endif -%}
+                    {%- if block.settings.poster.width >= 1500 -%}{{ block.settings.poster | img_url: '1500x' }} 1500w,{%- endif -%}
+                    {%- if block.settings.poster.width >= 1780 -%}{{ block.settings.poster | img_url: '1780x' }} 1780w,{%- endif -%}
+                    {%- if block.settings.poster.width >= 2000 -%}{{ block.settings.poster | img_url: '2000x' }} 2000w,{%- endif -%}
+                    {%- if block.settings.poster.width >= 3000 -%}{{ block.settings.poster | img_url: '3000x' }} 3000w,{%- endif -%}
+                    {%- if block.settings.poster.width >= 3840 -%}{{ block.settings.poster | img_url: '3840x' }} 3840w,{%- endif -%}"
+                  src="{{ block.settings.poster | img_url: '1920x' }}"
+                  sizes="{% if section.settings.full_width %}100vw{% else %}(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 }}px, (min-width: 750px) calc(100vw - 10rem), 100vw{% endif %}"
+                  alt="{{ 'sections.video.load_video' | t: description: section.settings.description | escape }}"
+                  loading="lazy"
+                  width="{{ block.settings.poster.width }}"
+                  height="{{ block.settings.poster.height }}"
+                >
+              {%- else -%}
+                {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg placeholder' }}
+              {%- endif -%}
+            </a>
+          </video>
+        </div>
+      {%- endfor -%}
+    </div>
+  {%- elsif section.settings.show_background_image -%}
+    <div class="banner__media{% if section.settings.image != blank %} media{% endif %}">
+      {%- if section.settings.image != blank -%}
+        <img
+          srcset="{%- if section.settings.image.width >= 375 -%}{{ section.settings.image | img_url: '375x' }} 375w,{%- endif -%}
+            {%- if section.settings.image.width >= 750 -%}{{ section.settings.image | img_url: '750x' }} 750w,{%- endif -%}
+            {%- if section.settings.image.width >= 1100 -%}{{ section.settings.image | img_url: '1100x' }} 1100w,{%- endif -%}
+            {%- if section.settings.image.width >= 1500 -%}{{ section.settings.image | img_url: '1500x' }} 1500w,{%- endif -%}
+            {%- if section.settings.image.width >= 1780 -%}{{ section.settings.image | img_url: '1780x' }} 1780w,{%- endif -%}
+            {%- if section.settings.image.width >= 2000 -%}{{ section.settings.image | img_url: '2000x' }} 2000w,{%- endif -%}
+            {%- if section.settings.image.width >= 3000 -%}{{ section.settings.image | img_url: '3000x' }} 3000w,{%- endif -%}
+            {%- if section.settings.image.width >= 3840 -%}{{ section.settings.image | img_url: '3840x' }} 3840w,{%- endif -%}
+            {{ section.settings.image | img_url: 'master' }} {{ section.settings.image.width }}w"
+          sizes="100vw"
+          src="{{ section.settings.image | img_url: '1500x' }}"
+          loading="lazy"
+          alt="{{ section.settings.image.alt | escape }}"
+          width="{{ section.settings.image.width }}"
+          height="{{ section.settings.image.width | divided_by: section.settings.image.aspect_ratio }}"
+        >
+      {%- else -%}
+        {%- render 'email-signup-banner-background' -%}
+        {%- render 'email-signup-banner-background-mobile' -%}
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+  <div class="banner__content banner__content--{{ section.settings.desktop_content_position }} page-width">
+    <div class="email-signup-banner__box banner__box newsletter newsletter__wrapper isolate{% if section.settings.show_background_image == false %} email-signup-banner__box--no-image{% endif %} content-container color-{{ section.settings.color_scheme }} content-container--full-width-mobile">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'heading' -%}
+            <h2 class="email-signup-banner__heading h1{% if block.settings.show_heading == false %} visually-hidden{% endif %}" {{ block.shopify_attributes }}>{{ block.settings.heading | escape }}</h2>
+          {%- when 'paragraph' -%}
+            <div class="newsletter__subheading rte {{ block.settings.text_style }}" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
+          {%- when 'email_form' -%}
+            <div {{ block.shopify_attributes }}>
+              {%- if block.settings.form_id != blank -%}
+                <div class="email-signup-banner__newsletter-form klaviyo-form-{{ block.settings.form_id }}"></div>
+
+              {%- elsif shop.metafields.settings.main.shop.mode == 'B2B' and shop.metafields.settings.tags.klaviyo.default_list_id != blank -%}
+                <form
+                  id="Banner-{{ section.id }}-KlaviyoForm"
+                  class="email-signup-banner__newsletter-form newsletter-form klaviyo_embed_{{ shop.metafields.settings.tags.klaviyo.default_list_id }}"
+                  action="//manage.kmail-lists.com/subscriptions/subscribe"
+                  data-ajax-submit="//manage.kmail-lists.com/ajax/subscriptions/subscribe"
+                  method="GET"
+                  target="_blank"
+                  novalidate="novalidate"
+                >                  
+                  <input type="hidden" name="g" value="{{ shop.metafields.settings.tags.klaviyo.default_list_id }}">
+                  <input type="hidden" name="$fields" value="$consent{% if customer.first_name %},$first_name{% endif %}{% if customer.last_name %},$last_name{% endif %}">
+                  <input type="hidden" name="$list_fields" value="$consent">
+                  <input type="hidden" name="$consent" id="consent-email" value="email">
+                  {%- if customer.first_name -%}
+                    <input type="hidden" name="$first_name" value="{{ customer.first_name }}">
+                  {%- endif -%}
+                  {%- if customer.last_name -%}
+                    <input type="hidden" name="$last_name" value="{{ customer.last_name }}">
+                  {%- endif -%}
+
+                  <div class="newsletter-form__field-wrapper klaviyo_field_group klaviyo_form_actions">
+                    {%- unless customer.first_name -%}
+                      <div class="field field--first-name">
+                        <input
+                          id="$first_name"
+                          type="text"
+                          name="$first_name"
+                          class="field__input"
+                          aria-required="true"
+                          autocorrect="off"
+                          autocapitalize="on"
+                          autocomplete="first_name"
+                          {% if form.errors %}
+                            autofocus
+                            aria-invalid="true"
+                            aria-describedby="Banner-{{ section.id }}-KlaviyoForm-error"
+                          {% elsif form.posted_successfully? %}
+                            aria-describedby="Banner-{{ section.id }}-KlaviyoForm-success"
+                          {% endif %}
+                          placeholder="{{ 'newsletter.first_name' | t }}"
+                          required
+                        >
+                        <label class="field__label" for="$first_name">
+                          {{ 'newsletter.first_name' | t }}
+                        </label>
+                      </div>
+                    {%- endunless -%}
+
+                    <div class="field field--email">
+                      <input
+                        id="k_id_email"
+                        type="email"
+                        name="email"
+                        class="field__input"
+                        value="{{ form.email }}"
+                        aria-required="true"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        autocomplete="email"
+                        {% if form.errors %}
+                          autofocus
+                          aria-invalid="true"
+                          aria-describedby="Banner-{{ section.id }}-KlaviyoForm-error"
+                        {% elsif form.posted_successfully? %}
+                          aria-describedby="Banner-{{ section.id }}-KlaviyoForm-success"
+                        {% endif %}
+                        placeholder="{{ 'newsletter.email' | t }}"
+                        required
+                      >
+                      <label class="field__label" for="k_id_email">
+                        {{ 'newsletter.email' | t }}
+                      </label>
+                      <div class="klaviyo_form_actions">
+                        <button type="submit" class="newsletter-form__button field__button klaviyo_submit_button" name="commit" id="Subscribe" aria-label="{{ 'newsletter.button_label' | t }}">
+                          {% render 'icon-arrow' %}
+                        </button>
+                      </div>
+                    </div>
+      
+                  </div>
+                  <div class="klaviyo_messages">
+                    <div id="Banner-{{ section.id }}-KlaviyoForm-success" class="success_message" style="display:none;">
+                      <h3 class="newsletter-form__message newsletter-form__message--success form__message" id="Banner-{{ section.id }}-KlaviyoForm-success" tabindex="-1" autofocus>{% render 'icon-success' %}{{ 'newsletter.success' | t }}</h3>
+                    </div>
+                    <div id="Banner-{{ section.id }}-KlaviyoForm-error" class="error_message" style="display:none;"></div>
+                  </div>
+                </form>
+      
+                <script type="text/javascript" src="//www.klaviyo.com/media/js/public/klaviyo_subscribe.js"></script>
+                <script type="text/javascript">
+                  KlaviyoSubscribe.attachToForms('#Banner-{{ section.id }}-KlaviyoForm', {
+                    hide_form_on_success: true,
+                    custom_success_message: true,
+                    extra_properties: {
+                      $source: 'Shopify ({{ page_title }} Sign Up Form {{ shop.metafields.settings.tags.klaviyo.default_list_id }})',
+                      $method_type: "Klaviyo Form",
+                      $method_id: 'embed'
+                    },
+                    extra_fields: [{% if customer.first_name and customer.last_name %}"$first_name", "$last_name"{% endif %}]
+                  });
+                </script>
+      
+              {%- elsif shop.metafields.settings.main.shop.mode == 'DTC' -%}
+                {%- form 'customer', id: 'Banner-{{ section.id }}-KlaviyoForm', class: 'email-signup-banner__newsletter-form newsletter-form' -%}
+                  <input type="hidden" name="contact[tags]" value="newsletter">
+                  {%- if customer -%}
+                    <input type="hidden" name="contact[first_name]" value="{{ customer.first_name }}">
+                    <input type="hidden" name="contact[last_name]" value="{{ customer.last_name }}">
+                  {%- endif -%}
+      
+                  <div class="newsletter-form__field-wrapper">
+                    {%- unless customer.first_name -%}
+                      <div class="field field--first-name">
+                        <input
+                          id="NewsletterForm--FirstName"
+                          type="text"
+                          name="contact[first_name]"
+                          class="field__input"
+                          aria-required="true"
+                          autocorrect="off"
+                          autocapitalize="on"
+                          autocomplete="first_name"
+                          {% if form.errors %}
+                            autofocus
+                            aria-invalid="true"
+                            aria-describedby="Banner-{{ section.id }}-KlaviyoForm-error"
+                          {% elsif form.posted_successfully? %}
+                            aria-describedby="Banner-{{ section.id }}-KlaviyoForm-success"
+                          {% endif %}
+                          placeholder="{{ 'newsletter.first_name' | t }}"
+                          required
+                        >
+                        <label class="field__label" for="NewsletterForm--FirstName">
+                          {{ 'newsletter.first_name' | t }}
+                        </label>
+                      </div>
+                    {%- endunless -%}
+                    <div class="field field--email">
+                      <input
+                        id="NewsletterForm--{{ section.id }}"
+                        type="email"
+                        name="contact[email]"
+                        class="field__input"
+                        value="{{ form.email }}"
+                        aria-required="true"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        autocomplete="email"
+                        {% if form.errors %}
+                          autofocus
+                          aria-invalid="true"
+                          aria-describedby="Banner-{{ section.id }}-KlaviyoForm-error"
+                        {% elsif form.posted_successfully? %}
+                          aria-describedby="Banner-{{ section.id }}-KlaviyoForm-success"
+                        {% endif %}
+                        placeholder="{{ 'newsletter.email' | t }}"
+                        required
+                      >
+                      <label class="field__label" for="NewsletterForm--{{ section.id }}">
+                        {{ 'newsletter.email' | t }}
+                      </label>
+                      <button type="submit" class="newsletter-form__button field__button" name="commit" id="Subscribe" aria-label="{{ 'newsletter.button_label' | t }}">
+                        {% render 'icon-arrow' %}
+                      </button>
+                    </div>
+                    {%- if form.errors -%}
+                      <small class="newsletter-form__message form__message" id="Banner-{{ section.id }}-KlaviyoForm-error">{% render 'icon-error' %}{{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}</small>
+                    {%- endif -%}
+                  </div>
+                  {%- if form.posted_successfully? -%}
+                    <h3 class="newsletter-form__message newsletter-form__message--success form__message" id="Banner-{{ section.id }}-KlaviyoForm-success" tabindex="-1" autofocus>{% render 'icon-success' %}{{ 'newsletter.success' | t }}</h3>
+                  {%- endif -%}
+                {%- endform -%}
+              {%- endif -%}
+            </div>
+          {%- when 'image' -%}
+            {%- if block.settings.image != blank -%}
+              <div class="email-signup-banner__content-image">
+                <img
+                  srcset="{%- if section.settings.image.width >= 375 -%}{{ block.settings.image | img_url: '375x' }} 375w,{%- endif -%}
+                    {%- if block.settings.image.width >= 750 -%}{{ block.settings.image | img_url: '750x' }} 750w,{%- endif -%}
+                    {%- if block.settings.image.width >= 1100 -%}{{ block.settings.image | img_url: '1100x' }} 1100w,{%- endif -%}
+                    {%- if block.settings.image.width >= 1500 -%}{{ block.settings.image | img_url: '1500x' }} 1500w,{%- endif -%}
+                    {%- if block.settings.image.width >= 1780 -%}{{ block.settings.image | img_url: '1780x' }} 1780w,{%- endif -%}
+                    {%- if block.settings.image.width >= 2000 -%}{{ block.settings.image | img_url: '2000x' }} 2000w,{%- endif -%}
+                    {%- if block.settings.image.width >= 3000 -%}{{ block.settings.image | img_url: '3000x' }} 3000w,{%- endif -%}
+                    {%- if block.settings.image.width >= 3840 -%}{{ block.settings.image | img_url: '3840x' }} 3840w,{%- endif -%}
+                    {{ block.settings.image | img_url: 'master' }} {{ block.settings.image.width }}w"
+                  sizes="100vw"
+                  src="{{ block.settings.image | img_url: '1500x' }}"
+                  loading="lazy"
+                  alt="{{ block.settings.image.alt | escape }}"
+                  width="{{ block.settings.image.width }}"
+                  height="{{ block.settings.image.width | divided_by: block.settings.image.aspect_ratio }}"
+                >
+              </div>
+            {%- endif -%}
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.email-signup-banner.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.email-signup-banner.settings.paragraph.content"
+    },
+    {
+      "type": "select",
+      "id": "image_height",
+      "options": [
+        {
+          "value": "adapt-image",
+          "label": "t:sections.email-signup-banner.settings.image_height.options__1.label"
+        },
+        {
+          "value": "small",
+          "label": "t:sections.email-signup-banner.settings.image_height.options__2.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.email-signup-banner.settings.image_height.options__3.label"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.email-signup-banner.settings.image_height.options__4.label"
+        },
+        {
+          "value": "fullscreen",
+          "label": "t:sections.email-signup-banner.settings.image_height.options__5.label"
+        }
+      ],
+      "default": "fullscreen",
+      "label": "t:sections.email-signup-banner.settings.image_height.label",
+      "info": "t:sections.email-signup-banner.settings.image_height.info"
+    },
+    {
+      "type": "range",
+      "id": "image_overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "label": "t:sections.email-signup-banner.settings.image_overlay_opacity.label",
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "desktop_content_position",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "t:sections.email-signup-banner.settings.desktop_content_position.options__1.label"
+        },
+        {
+          "value": "top-center",
+          "label": "t:sections.email-signup-banner.settings.desktop_content_position.options__2.label"
+        },
+        {
+          "value": "top-right",
+          "label": "t:sections.email-signup-banner.settings.desktop_content_position.options__3.label"
+        },
+        {
+          "value": "middle-left",
+          "label": "t:sections.email-signup-banner.settings.desktop_content_position.options__4.label"
+        },
+        {
+          "value": "middle-center",
+          "label": "t:sections.email-signup-banner.settings.desktop_content_position.options__5.label"
+        },
+        {
+          "value": "middle-right",
+          "label": "t:sections.email-signup-banner.settings.desktop_content_position.options__6.label"
+        },
+        {
+          "value": "bottom-left",
+          "label": "t:sections.email-signup-banner.settings.desktop_content_position.options__7.label"
+        },
+        {
+          "value": "bottom-center",
+          "label": "t:sections.email-signup-banner.settings.desktop_content_position.options__8.label"
+        },
+        {
+          "value": "bottom-right",
+          "label": "t:sections.email-signup-banner.settings.desktop_content_position.options__9.label"
+        }
+      ],
+      "default": "middle-center",
+      "label": "t:sections.email-signup-banner.settings.desktop_content_position.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_text_box",
+      "default": true,
+      "label": "t:sections.email-signup-banner.settings.show_text_box.label"
+    },
+    {
+      "type": "select",
+      "id": "desktop_content_alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.email-signup-banner.settings.desktop_content_alignment.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.email-signup-banner.settings.desktop_content_alignment.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.email-signup-banner.settings.desktop_content_alignment.options__3.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.email-signup-banner.settings.desktop_content_alignment.label"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "options": [
+        {
+          "value": "light",
+          "label": "t:sections.email-signup-banner.settings.color_scheme.options__light.label"
+        },
+        {
+          "value": "beige",
+          "label": "t:sections.email-signup-banner.settings.color_scheme.options__beige.label"
+        },
+        {
+          "value": "dark",
+          "label": "t:sections.email-signup-banner.settings.color_scheme.options__dark.label"
+        },
+        {
+          "value": "dark-65",
+          "label": "t:sections.email-signup-banner.settings.color_scheme.options__dark-65.label"
+        },
+        {
+          "value": "gold-m",
+          "label": "t:sections.email-signup-banner.settings.color_scheme.options__gold-m.label"
+        }
+      ],
+      "default": "dark",
+      "label": "t:sections.email-signup-banner.settings.color_scheme.label",
+      "info": "t:sections.email-signup-banner.settings.color_scheme.info"
+    },
+    {
+      "type": "header",
+      "content": "Video settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_background_video",
+      "label": "t:sections.email-signup-banner.settings.show_background_video.label",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "mobile_aspect_ratio",
+      "options": [
+        {
+          "value": "16-9",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__2.label"
+        },
+        {
+          "value": "6-4",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__3.label"
+        },
+        {
+          "value": "4-3",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__4.label"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__5.label"
+        },
+        {
+          "value": "4-5",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__6.label"
+        },
+        {
+          "value": "9-16",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__7.label"
+        }
+      ],
+      "default": "4-5",
+      "label": "t:sections.email-signup-banner.settings.mobile_aspect_ratio.label"
+    },
+    {
+      "type": "select",
+      "id": "desktop_aspect_ratio",
+      "options": [
+        {
+          "value": "32-9",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__1.label"
+        },
+        {
+          "value": "16-9",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__2.label"
+        },
+        {
+          "value": "6-4",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__3.label"
+        },
+        {
+          "value": "4-3",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__4.label"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__5.label"
+        },
+        {
+          "value": "4-5",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__6.label"
+        }
+      ],
+      "default": "16-9",
+      "label": "t:sections.email-signup-banner.settings.desktop_aspect_ratio.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "t:sections.video-hosted.settings.full_width.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "controls",
+      "default": false,
+      "label": "t:sections.video-hosted.settings.controls.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "playsinline",
+      "default": true,
+      "label": "t:sections.video-hosted.settings.playsinline.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "loop",
+      "default": true,
+      "label": "t:sections.video-hosted.settings.loop.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "default": true,
+      "label": "t:sections.video-hosted.settings.autoplay.label",
+      "info": "t:sections.video-hosted.settings.autoplay.info"
+    },
+    {
+      "type": "header",
+      "content": "Image settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.email-signup-banner.settings.image.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_background_image",
+      "label": "t:sections.email-signup-banner.settings.show_background_image.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.email-signup-banner.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "mobile_content_alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.email-signup-banner.settings.mobile_content_alignment.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.email-signup-banner.settings.mobile_content_alignment.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.email-signup-banner.settings.mobile_content_alignment.options__3.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.email-signup-banner.settings.mobile_content_alignment.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_text_below",
+      "default": true,
+      "label": "t:sections.email-signup-banner.settings.show_text_below.label"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "t:sections.email-signup-banner.blocks.heading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "default": "Opening soon",
+          "label": "t:sections.email-signup-banner.blocks.heading.settings.heading.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_heading",
+          "default": true,
+          "label": "t:sections.email-signup-banner.blocks.heading.settings.show_heading.label"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "t:sections.email-signup-banner.blocks.image.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.email-signup-banner.blocks.image.settings.image.label"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "name": "t:sections.email-signup-banner.blocks.paragraph.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Be the first to know when we launch.</p>",
+          "label": "t:sections.email-signup-banner.blocks.paragraph.settings.paragraph.label"
+        },
+        {
+          "type": "select",
+          "id": "text_style",
+          "options": [
+            {
+              "value": "body",
+              "label": "t:sections.email-signup-banner.blocks.paragraph.settings.text_style.options__1.label"
+            },
+            {
+              "value": "subtitle",
+              "label": "t:sections.email-signup-banner.blocks.paragraph.settings.text_style.options__2.label"
+            }
+          ],
+          "default": "body",
+          "label": "t:sections.email-signup-banner.blocks.paragraph.settings.text_style.label"
+        }
+      ]
+    },
+    {
+      "type": "email_form",
+      "name": "t:sections.email-signup-banner.blocks.email_form.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "form_id",
+          "label": "t:sections.email-signup-banner.blocks.email_form.settings.form_id.label",
+          "info": "t:sections.email-signup-banner.blocks.email_form.settings.form_id.info"
+        }
+      ]
+    },
+    {
+      "type": "mobile",
+      "name": "t:sections.email-signup-banner.blocks.mobile.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "poster",
+          "label": "t:sections.video-hosted.settings.poster.label"
+        },
+        {
+          "type": "text",
+          "id": "video_url",
+          "label": "t:sections.video-hosted.settings.video_url.label",
+          "info": "t:sections.video-hosted.settings.video_url.info"
+        },
+        {
+          "type": "select",
+          "id": "preload",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.video-hosted.settings.preload.options__1.label"
+            },
+            {
+              "value": "metadata",
+              "label": "t:sections.video-hosted.settings.preload.options__2.label"
+            },
+            {
+              "value": "auto",
+              "label": "t:sections.video-hosted.settings.preload.options__3.label"
+            }
+          ],
+          "default": "metadata",
+          "label": "t:sections.video-hosted.settings.preload.label",
+          "info": "t:sections.video-hosted.settings.preload.info"
+        }
+      ]
+    },
+    {
+      "type": "desktop",
+      "name": "t:sections.email-signup-banner.blocks.desktop.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "poster",
+          "label": "t:sections.video-hosted.settings.poster.label"
+        },
+        {
+          "type": "text",
+          "id": "video_url",
+          "label": "t:sections.video-hosted.settings.video_url.label",
+          "info": "t:sections.video-hosted.settings.video_url.info"
+        },
+        {
+          "type": "select",
+          "id": "preload",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.video-hosted.settings.preload.options__1.label"
+            },
+            {
+              "value": "metadata",
+              "label": "t:sections.video-hosted.settings.preload.options__2.label"
+            },
+            {
+              "value": "auto",
+              "label": "t:sections.video-hosted.settings.preload.options__3.label"
+            }
+          ],
+          "default": "metadata",
+          "label": "t:sections.video-hosted.settings.preload.label",
+          "info": "t:sections.video-hosted.settings.preload.info"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.email-signup-banner.presets.name",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "paragraph"
+        },
+        {
+          "type": "email_form"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

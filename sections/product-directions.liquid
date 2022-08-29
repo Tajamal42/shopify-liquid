@@ -1,0 +1,139 @@
+{%- liquid
+  assign directions = product.metafields.directions
+  assign total_directions_count = product.metafields.directions.step_description.size
+-%}
+
+{% if directions.step_description[0][request.locale.iso_code] != blank or directions.step_description[0]['en'] != blank %}
+  {{ 'section-product-directions.css' | asset_url | stylesheet_tag }}
+  <link rel="stylesheet" href="{{ 'component-slider.css' | asset_url }}" media="print" onload="this.media='all'">
+  <noscript>{{ 'component-slider.css' | asset_url | stylesheet_tag }}</noscript>
+
+  <div class="product-directions background-primary">
+    <div class="page-width">
+      <div class="title-wrapper title-wrapper--self-padded-mobile directions__title">
+        <h2 class="title">
+          {{ 'sections.product_directions.section_title' | t }}
+        </h2>
+      </div>
+      <slider-component class="slider-mobile-gutter slider-all-devices">
+        <ul class="product-directions-list product-directions__list grid grid--1-col grid--2-col-tablet grid--3-col-desktop slider slider--all-devices"
+          id="Slider-{{ section.id }}"
+          role="list"
+        >
+          {%- liquid
+            assign highest_ratio = 0
+            for step in directions.step_description
+              if directions.step_media[forloop.index0][0].aspect_ratio > highest_ratio
+                assign highest_ratio = directions.step_media[forloop.index0][0].aspect_ratio
+              endif
+            endfor
+          -%}
+          {% comment %}theme-check-disable{% endcomment %}
+          {% for step in directions.step_description %}
+            <li class="product-directions-list__item grid__item{% if total_directions_count > 2 %} slider__slide{% endif %}">
+              <div class="product-directions-card">
+                {%- if directions.step_media[forloop.index0][0] != blank -%}
+                  {%- if directions.step_media[forloop.index0][0].media_type == 'video' -%}
+                    <div class="product-directions-card__media-wrapper">
+                      <div class="media media--transparent media--5-4">
+                        <video 
+                          controls
+                          autostart="false"
+                          controlslist="nodownload"
+                          playsinline="true"
+                          {% if directions.step_media[forloop.index0][1] != blank -%}
+                            width="{{ directions.step_media[forloop.index0][1].width }}"
+                            height="{{ directions.step_media[forloop.index0][1].height }}"
+                            poster="{{ directions.step_media[forloop.index0][1].cloudinary_src | append: 'w_550' }}"
+                          {% endif %}
+                          {% if forloop.first -%}
+                            preload="metadata"
+                          {% else -%}
+                            preload="none"
+                          {% endif -%}
+                        >
+                          <source src="{{ directions.step_media[forloop.index0][0].src }}" type="{{ directions.step_media[forloop.index0][0].mime_type }}">               
+                          Sorry, your browser doesn't support embedded HTML5 videos.
+                        </video>
+                      </div>
+                    </div>
+                  
+                  {%- elsif directions.step_media[forloop.index0][0].media_type == 'image' -%}
+                    <div class="product-directions-card__media-wrapper">
+                      <div class="media media--transparent media--5-4">
+                        <img
+                          srcset="{%- if directions.step_media[forloop.index0][0].width >= 275 -%}{{ directions.step_media[forloop.index0][0].cloudinary_src | append: 'w_275' }} 275w,{%- endif -%}
+                            {%- if directions.step_media[forloop.index0][0].width >= 550 -%}{{ directions.step_media[forloop.index0][0].cloudinary_src | append: 'w_550' }} 550w,{%- endif -%}
+                            {%- if directions.step_media[forloop.index0][0].width >= 710 -%}{{ directions.step_media[forloop.index0][0].cloudinary_src | append: 'w_710' }} 710w,{%- endif -%}
+                            {%- if directions.step_media[forloop.index0][0].width >= 1420 -%}{{ directions.step_media[forloop.index0][0].cloudinary_src | append: 'w_1420' }} 1420w,{%- endif -%}"
+                          src="{{ directions.step_media[forloop.index0][0].cloudinary_src | append: 'w_550' }}"
+                          sizes="(min-width: 990px) {% if total_directions_count <= 2 %}710px{% else %}550px{% endif %},
+                            (min-width: 750px) {% if total_directions_count == 1 %}710px{% else %}550px{% endif %},
+                            calc(100vw - 30px)"
+                          {% if directions.step_media[forloop.index0][0].alt != blank %}
+                            alt="{{ directions.step_media[forloop.index0][0].alt | escape }}"
+                          {% elsif directions.step_title != blank %}
+                            alt="{{ directions.step_title[forloop.index0] | escape }}"
+                          {% endif %}
+                          height="{{ directions.step_media[forloop.index0][0].height }}"
+                          width="{{ directions.step_media[forloop.index0][0].width }}"
+                          loading="lazy"
+                        >
+                      </div>
+                    </div>
+                  {%- endif -%}
+                {%- endif -%}
+                <div class="product-directions-card__info">
+                  {% if directions.step_title[forloop.index0][request.locale.iso_code] != blank %}
+                    <h3>{{ directions.step_title[forloop.index0][request.locale.iso_code] }}</h3>
+                  {% elsif directions.step_title[forloop.index0]['en'] != blank %}
+                    <h3>{{ directions.step_title[forloop.index0]['en'] }}</h3>
+                  {% endif %}
+                  <div class="rte">
+                    {% if directions.step_description[forloop.index0][request.locale.iso_code] != blank %}
+                      {{ directions.step_description[forloop.index0][request.locale.iso_code] }}
+                    {% else %}
+                      {{ directions.step_description[forloop.index0]['en'] }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </li>
+          {% endfor %}
+          {% comment %}theme-check-enable{% endcomment %}
+        </ul>
+        <div class="slider-buttons no-js-hidden{% if total_directions_count < 4 %} medium-up-hide{% endif %}{% if total_directions_count < 3 %} small-hide{% endif %}">
+          <div class="slider-counter caption">
+            <span class="slider-counter--current">1</span>
+            <span aria-hidden="true"> / </span>
+            <span class="visually-hidden">{{ 'accessibility.of' | t }}</span>
+            <span class="slider-counter--total">{{ total_directions_count }}</span>
+          </div>
+          <button type="button" class="slider-button slider-button--prev" name="previous" aria-label="{{ 'accessibility.previous_slide' | t }}">{% render 'icon-caret' %}</button>
+          <button type="button" class="slider-button slider-button--next" name="next" aria-label="{{ 'accessibility.next_slide' | t }}">{% render 'icon-caret' %}</button>
+        </div>
+      </slider-component>
+      {%- if product.metafields.files.instructions != blank -%}
+        <div class="product-directions__files">
+          <a class="button button--primary" href="{{ product.metafields.files.instructions.value.url }}" target="_blank" rel="noopener noreferrer">
+            {{ 'sections.product_directions.download_button_label' | t }}
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "t:sections.product-directions.name",
+  "class": "spaced-section spaced-section--full-width product-master-section product-directions-section",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.product-directions.settings.paragraph__1.content"
+    }
+  ]
+}
+{% endschema %}

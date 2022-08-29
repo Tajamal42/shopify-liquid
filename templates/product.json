@@ -1,0 +1,148 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "vendor": {
+          "type": "text",
+          "settings": {
+            "text": "{{ product.vendor }}",
+            "text_style": "uppercase"
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+          }
+        },
+        "okendo_aggregate_rating": {
+          "type": "shopify:\/\/apps\/okendo\/blocks\/star-rating\/bb689e69-ea70-4661-8fb7-ad24a2e23c29",
+          "settings": {
+            "product": "{{ product }}"
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+          }
+        },
+        "free_shipping_eligibility": {
+          "type": "free_shipping_eligibility",
+          "settings": {
+          }
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "button"
+          }
+        },
+        "quantity_selector": {
+          "type": "quantity_selector",
+          "settings": {
+          }
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true
+          }
+        },
+        "description": {
+          "type": "description",
+          "settings": {
+          }
+        },
+        "badges": {
+          "type": "badges",
+          "settings": {
+          }
+        },
+        "share": {
+          "type": "share",
+          "settings": {
+            "share_label": "Share"
+          }
+        }
+      },
+      "block_order": [
+        "vendor",
+        "title",
+        "okendo_aggregate_rating",
+        "price",
+        "variant_picker",
+        "quantity_selector",
+        "free_shipping_eligibility",
+        "buy_buttons",
+        "description",
+        "badges",
+        "share"
+      ],
+      "settings": {
+        "enable_sticky_info": true,
+        "enable_video_looping": false
+      }
+    },
+    "product-key-features": {
+      "type": "product-key-features",
+      "settings": {
+      }
+    },
+    "product-details": {
+      "type": "product-details",
+      "settings": {
+        "heading": "Details",
+        "show_heading": true
+      }
+    },
+    "product-ingredients": {
+      "type": "product-ingredients",
+      "settings": {
+      }
+    },
+    "product-directions": {
+      "type": "product-directions",
+      "settings": {
+      }
+    },
+    "product-recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "You may also like",
+        "image_ratio": "portrait",
+        "show_secondary_image": false,
+        "add_image_padding": false,
+        "show_image_outline": false,
+        "show_vendor": false,
+        "show_rating": true
+      }
+    },
+    "okendo_reviews": {
+      "type": "apps",
+      "blocks": {
+        "c0366dd1-c440-49ab-96ca-295ae2d75862": {
+          "type": "shopify:\/\/apps\/okendo\/blocks\/reviews-widget\/bb689e69-ea70-4661-8fb7-ad24a2e23c29",
+          "settings": {
+            "product": "{{ product }}",
+            "widget_type": "combined_widget"
+          }
+        }
+      },
+      "block_order": [
+        "c0366dd1-c440-49ab-96ca-295ae2d75862"
+      ],
+      "settings": {
+        "include_margins": true
+      }
+    }
+  },
+  "order": [
+    "main",
+    "product-key-features",
+    "product-details",
+    "product-ingredients",
+    "product-directions",
+    "product-recommendations",
+    "okendo_reviews"
+  ]
+}

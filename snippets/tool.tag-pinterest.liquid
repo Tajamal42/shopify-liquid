@@ -1,0 +1,98 @@
+{% comment %}theme-check-disable RemoteAsset,ImgLazyLoading{% endcomment %}
+
+{%- if shop.metafields.settings.tags.pinterest.enable and shop.metafields.settings.tags.pinterest.tag_id != blank -%}
+  {%- if noscript -%}
+    <noscript>
+      <img height="1" width="1" style="display:none;" alt="" src="https://ct.pinterest.com/v3/?event=init&tid={{ shop.metafields.settings.tags.pinterest.tag_id }}{% if customer %}&pd[em]={{ customer.email | downcase | sha256 }}{% endif %}&noscript=1" />
+    </noscript>
+  {%- else -%}
+    <script>
+      !function(e){if(!window.pintrk){window.pintrk = function () {
+      window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var
+        n=window.pintrk;n.queue=[],n.version="3.0";var
+        t=document.createElement("script");t.async=!0,t.src=e;var
+        r=document.getElementsByTagName("script")[0];
+        r.parentNode.insertBefore(t,r)}}("https://s.pinimg.com/ct/core.js");
+      pintrk('load', '{{ shop.metafields.settings.tags.pinterest.tag_id }}'{% if customer %}, { em: '{{ customer.email | downcase | sha256 }}' }{% endif %});
+      pintrk('page');
+    </script>
+  {%- endif -%}
+
+  {%- case template.name -%}
+    {%- when 'product' -%}
+      {%- liquid
+        if uses_comma_decimals
+          assign product_price = product.selected_or_first_available_variant.price | money_without_currency | replace: '.', '' | replace: ',', '.' | times: 1 | json
+        else
+          assign product_price = product.selected_or_first_available_variant.price | money_without_currency | replace: ',', '' | times: 1 | json
+        endif
+      -%}
+      {%- if noscript -%}
+        <noscript>
+          <img height="1" width="1" style="display:none;" alt="" src="https://ct.pinterest.com/v3/?tid={{ shop.metafields.settings.tags.pinterest.tag_id }}&event=pagevisit&ed[product_name]={{ product.title | url_encode }}&ed[product_brand]={{ product.vendor | url_encode }}&ed[product_category]={{ product.type | split: ' - ' | last | url_encode }}&ed[product_id]=shopify_{{ shop.metafields.settings.main.shop_country }}_{{ product.id }}_{{ product.selected_or_first_available_variant.id }}&ed[product_price]={{ product_price | url_encode }}&ed[product_variant]={{ product.selected_or_first_available_variant.title | url_encode }}&ed[product_variant_id]={{ product.selected_or_first_available_variant.id | url_encode }}&noscript=1"/>
+        </noscript>
+      {%- else -%}
+        <script>
+          pintrk('track', 'pagevisit', {
+            product_name: {{ product.title | json }},
+            product_brand: {{ product.vendor | json }},
+            product_category: {{ product.type | split: ' - ' | last | json }},
+            product_id: 'shopify_{{ shop.metafields.settings.main.shop_country }}_{{ product.id }}_{{ product.selected_or_first_available_variant.id }}',
+            product_price: {{ product_price }},
+            product_variant: {{ product.selected_or_first_available_variant.title | json }},
+            product_variant_id: '{{ product.selected_or_first_available_variant.id }}'
+          });
+        </script>
+      {%- endif -%}
+
+    {%- when 'collection' -%}
+      {%- if noscript -%}
+        <noscript>
+          <img height="1" width="1" style="display:none;" alt="" src="https://ct.pinterest.com/v3/?tid={{ shop.metafields.settings.tags.pinterest.tag_id }}&event=viewcategory&noscript=1" />
+        </noscript>
+      {%- else -%}
+        <script>
+          pintrk('track', 'viewcategory');
+        </script>
+      {%- endif -%}
+    
+    {%- when 'search' -%}
+      {%- if search.performed -%}
+
+        {%- if noscript -%}
+          <noscript>
+            <img height="1" width="1" style="display:none;" alt="" src="https://ct.pinterest.com/v3/?tid={{ shop.metafields.settings.tags.pinterest.tag_id }}&event=search&ed[search_query]={{ search.terms | url_encode }}&noscript=1" />
+          </noscript>
+        {%- else -%}
+          <script>
+            pintrk('track', 'search', {
+              search_query: '{{ search.terms }}'
+            });
+          </script>
+        {%- endif -%}
+
+      {%- else -%}
+        {%- if noscript -%}
+          <noscript>
+            <img height="1" width="1" style="display:none;" alt="" src="https://ct.pinterest.com/v3/?tid={{ shop.metafields.settings.tags.pinterest.tag_id }}&event=pagevisit&noscript=1" />
+          </noscript>
+        {%- else -%}
+          <script>
+            pintrk('track', 'pagevisit');
+          </script>
+        {%- endif -%}
+      {%- endif -%}
+    
+    {%- else -%}
+      {%- if noscript -%}
+        <noscript>
+          <img height="1" width="1" style="display:none;" alt="" src="https://ct.pinterest.com/v3/?tid={{ shop.metafields.settings.tags.pinterest.tag_id }}&event=pagevisit&noscript=1" />
+        </noscript>
+      {%- else -%}
+        <script>
+          pintrk('track', 'pagevisit');
+        </script>
+      {%- endif -%}
+      
+  {%- endcase -%}
+{%- endif -%}

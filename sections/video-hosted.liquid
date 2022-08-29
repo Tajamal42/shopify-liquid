@@ -1,0 +1,272 @@
+{{ 'video-section.css' | asset_url | stylesheet_tag }}
+{{ 'component-deferred-media.css' | asset_url | stylesheet_tag }}
+
+<style>
+  video-hosted .video-section__media {
+    background-color: rgba(var(--color-foreground), 0.05);
+    background-repeat: repeat;
+    background-size: 8rem;
+    background-position: center;
+  }
+</style>
+
+<script src="{{ 'video-hosted.js' | asset_url }}" async></script>
+
+<div class="video-section{% unless section.settings.full_width %} page-width{% endunless %}" id="{{ section.id }}">
+  <div {% if section.settings.full_width %}class="page-width"{% endif %}>
+    <h2 class="title">{{ section.settings.heading }}</h2>
+  </div>
+
+  <video-hosted class="video-section__media-wrapper">
+    {%- if section.settings.link != blank -%}
+      <a class="video-section__link" href="{{ section.settings.link }}">
+    {%- endif -%}
+
+    <noscript>
+      <div class="no-js video-section__media video-section__media--{{ section.settings.desktop_aspect_ratio }}"
+        style="background-image: url({{ 'placeholder-video.png' | asset_url }});"
+      >
+        <video
+          disableremoteplayback
+          x-webkit-airplay="deny"
+          {%- if section.settings.controls %}
+          controls
+          controlslist="nodownload noremoteplayback"
+          {%- endif %}
+          {%- if section.settings.autoplay %} muted="true" autoplay {%- endif %}
+          {%- if section.settings.playsinline %} playsinline {%- endif %}
+          {%- if section.settings.loop %} loop {%- endif %}
+          {%- if section.settings.preload == 'metadata' %} preload="metadata"
+          {%- elsif section.settings.preload == 'preload' %} preload {%- endif %}
+          {%- if section.settings.desktop_filename != blank %}
+          src="{{ section.settings.desktop_filename | file_url }}"
+          {%- endif %}
+          {%- if section.settings.poster != blank %}
+          poster="{{ section.settings.desktop_poster | image_url }}"
+          {%- endif %}
+        >
+        </video>
+      </div>
+    </noscript>
+    
+    <div class="no-js-hidden video-section__media
+      video-section__media--m-{{ section.settings.aspect_ratio }}
+      video-section__media--d-{{ section.settings.desktop_aspect_ratio }}"
+      style="background-image: url({{ 'placeholder-video.png' | asset_url }});"
+    >
+      <video
+        disableremoteplayback
+        x-webkit-airplay="deny"
+        {%- if section.settings.controls %}
+        controls
+        controlslist="nodownload noremoteplayback"
+        {%- endif %}
+        {%- if section.settings.autoplay %} muted="true" autoplay {%- endif %}
+        {%- if section.settings.playsinline %} playsinline {%- endif %}
+        {%- if section.settings.loop %} loop {%- endif %}
+        {%- if section.settings.preload == 'metadata' %} preload="metadata"
+        {%- elsif section.settings.preload == 'preload' %} preload {%- endif %}
+        {% comment %} {%- if section.settings.poster != blank %}
+        poster="{{ section.settings.poster | image_url }}"
+        {%- elsif section.settings.desktop_poster != blank %}
+        poster="{{ section.settings.desktop_poster | image_url }}"
+        {%- endif %}
+        {%- if section.settings.filename %}
+        src="{{ section.settings.filename | file_url }}"
+        {%- elsif section.settings.desktop_filename != blank %}
+        src="{{ section.settings.desktop_filename | file_url }}"
+        {%- endif %} {% endcomment %}
+        poster=""
+        src=""
+        data-poster="{{ section.settings.poster | image_url }}"
+        data-video-url="{{ section.settings.filename | file_url }}"
+        data-desktop-poster="{{ section.settings.desktop_poster | image_url }}"
+        data-desktop-video-url="{{ section.settings.desktop_filename | file_url }}"
+      >
+      </video>
+    </div>
+
+    {%- if section.settings.link != blank -%}
+      </a>
+    {%- endif -%}
+  </video-hosted>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.video-hosted.name",
+  "tag": "section",
+  "class": "spaced-section spaced-section--full-width",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "image_picker",
+      "id": "poster",
+      "label": "t:sections.video-hosted.settings.poster.label"
+    },
+    {
+      "type": "text",
+      "id": "filename",
+      "label": "t:sections.video-hosted.settings.video_filename.label",
+      "info": "t:sections.video-hosted.settings.video_filename.info"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "options": [
+        {
+          "value": "16-9",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__2.label"
+        },
+        {
+          "value": "6-4",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__3.label"
+        },
+        {
+          "value": "4-3",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__4.label"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__5.label"
+        },
+        {
+          "value": "4-5",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__6.label"
+        },
+        {
+          "value": "9-16",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__7.label"
+        },
+        {
+          "value": "fullscreen",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__8.label"
+        }
+      ],
+      "default": "4-5",
+      "label": "t:sections.video-hosted.settings.aspect_ratio.label"
+    },
+    {
+      "type": "header",
+      "content": "Desktop"
+    },
+    {
+      "type": "image_picker",
+      "id": "desktop_poster",
+      "label": "t:sections.video-hosted.settings.poster.label"
+    },
+    {
+      "type": "text",
+      "id": "desktop_filename",
+      "label": "t:sections.video-hosted.settings.video_filename.label",
+      "info": "t:sections.video-hosted.settings.video_filename.info"
+    },
+    {
+      "type": "select",
+      "id": "desktop_aspect_ratio",
+      "options": [
+        {
+          "value": "32-9",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__1.label"
+        },
+        {
+          "value": "16-9",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__2.label"
+        },
+        {
+          "value": "6-4",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__3.label"
+        },
+        {
+          "value": "4-3",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__4.label"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__5.label"
+        },
+        {
+          "value": "4-5",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__6.label"
+        },
+        {
+          "value": "fullscreen",
+          "label": "t:sections.video-hosted.settings.aspect_ratio.options__8.label"
+        }
+      ],
+      "default": "16-9",
+      "label": "t:sections.video-hosted.settings.aspect_ratio.label"
+    },
+    {
+      "type": "header",
+      "content": "General settings"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:sections.video-hosted.settings.link.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "t:sections.video-hosted.settings.full_width.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "controls",
+      "default": false,
+      "label": "t:sections.video-hosted.settings.controls.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "playsinline",
+      "default": true,
+      "label": "t:sections.video-hosted.settings.playsinline.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "loop",
+      "default": true,
+      "label": "t:sections.video-hosted.settings.loop.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "default": true,
+      "label": "t:sections.video-hosted.settings.autoplay.label"
+    },
+    {
+      "type": "select",
+      "id": "preload",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.video-hosted.settings.preload.options__1.label"
+        },
+        {
+          "value": "metadata",
+          "label": "t:sections.video-hosted.settings.preload.options__2.label"
+        },
+        {
+          "value": "auto",
+          "label": "t:sections.video-hosted.settings.preload.options__3.label"
+        }
+      ],
+      "default": "metadata",
+      "label": "t:sections.video-hosted.settings.preload.label",
+      "info": "t:sections.video-hosted.settings.preload.info"
+    }
+  ],
+  "blocks": [
+  ],
+  "presets": [
+    {
+      "name": "t:sections.video-hosted.presets.name"
+    }
+  ]
+}
+{% endschema %}

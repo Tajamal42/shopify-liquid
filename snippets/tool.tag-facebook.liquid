@@ -1,0 +1,99 @@
+{% comment %}theme-check-disable RemoteAsset,ImgLazyLoading{% endcomment %}
+{%- if shop.metafields.settings.tags.facebook.enable and shop.metafields.settings.tags.facebook.tag_id != blank -%}
+  {%- if noscript -%}
+    <noscript>
+      <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ shop.metafields.settings.tags.facebook.tag_id }}&ev=PageView&noscript=1{% if customer %}&ud[em]={{ customer.email | sha256 }}&ud[fn]={{ customer.first_name | sha256 }}&ud[ln]={{ customer.last_name | sha256 }}{% endif %}" />
+    </noscript>
+  {%- else -%}
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+
+      
+      fbq('init', '{{ shop.metafields.settings.tags.facebook.tag_id }}'{% if customer %}, {
+        em: '{{ customer.email }}',
+        fn: '{{ customer.first_name }}',
+        ln: '{{ customer.last_name }}'
+      }{% endif %});
+
+      fbq('track', 'PageView');
+    </script>
+  {%- endif -%}
+    
+  {%- case template.name -%}
+    {%- when 'product' -%}
+      {%- liquid
+        if uses_comma_decimals
+          assign product_price = product.selected_or_first_available_variant.price | money_without_currency | replace: '.', '' | replace: ',', '.' | times: 1 | json
+        else
+          assign product_price = product.selected_or_first_available_variant.price | money_without_currency | replace: ',', '' | times: 1 | json
+        endif
+      -%}
+      {%- if noscript -%}
+        <noscript>
+          <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ shop.metafields.settings.tags.facebook.tag_id }}&ev=ViewContent&noscript=1{% if customer %}&ud[em]={{ customer.email | sha256 }}&ud[fn]={{ customer.first_name | sha256 }}&ud[ln]={{ customer.last_name | sha256 }}{% endif %}&cd[content_ids]={{ product.selected_or_first_available_variant.sku | url_encode }}&cd[content_type]=product&cd[content_category]={{ product.type | url_encode }}&cd[currency]={{ cart.currency.iso_code }}&cd[value]={{ product_price }}" />
+        </noscript>
+      {%- else -%}
+        <script>
+          fbq('track', 'ViewContent', {
+            content_ids: ['{{ product.selected_or_first_available_variant.sku }}'],
+            content_type: 'product',
+            content_name: '{% if product.has_variants %}{{ product.title }} - {{ product.selected_or_first_available_variant.title }}{% else %}{{ product.title }}{% endif %}',
+            content_category: '{{ product.type }}',
+            contents: [{ 'id': '{{ product.selected_or_first_available_variant.sku }}', 'quantity': 1 }],
+            currency: '{{ cart.currency.iso_code }}',
+            value: {{ product_price }}
+          });
+        </script>
+      {%- endif -%}
+    
+    {%- when 'collection' -%}
+      {%- if noscript -%}
+        <noscript>
+          <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ shop.metafields.settings.tags.facebook.tag_id }}&ev=ViewContent&noscript=1{% if customer %}&ud[em]={{ customer.email | sha256 }}&ud[fn]={{ customer.first_name | sha256 }}&ud[ln]={{ customer.last_name | sha256 }}{% endif %}" />
+        </noscript>
+      {%- else -%}
+        <script>
+          fbq('track', 'ViewContent', {            
+            content_type: 'product',
+            content_name: '{{ collection.title }}',
+            content_category: 'Collection Page',
+            currency: '{{ cart.currency.iso_code }}',
+            {% if collection.all_products_count > 0 %}
+            content_ids: [{% for item in collection.products %}'{{ item.selected_or_first_available_variant.sku }}'{% unless forloop.last %},{% endunless %}{% endfor %}],
+            contents: [{% for item in collection.products %}{'id': '{{ item.selected_or_first_available_variant.sku }}', 'quantity': 1 }{% unless forloop.last %},{% endunless %}{% endfor %}]
+            {% endif %}            
+          });
+        </script>
+      {%- endif -%}
+    
+    {%- when 'search' -%}
+      {%- if search.performed -%}
+        {%- assign product_results = search.results | where: 'object_type', 'product' -%}
+        {%- if noscript -%}
+          <noscript>
+            <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ shop.metafields.settings.tags.facebook.tag_id }}&ev=ViewContent&noscript=1{% if customer %}&ud[em]={{ customer.email | sha256 }}&ud[fn]={{ customer.first_name | sha256 }}&ud[ln]={{ customer.last_name | sha256 }}{% endif %}&cd[content_category]={{ 'Search Results' | url_encode }}&cd[search_string]={{ search.terms | url_encode }}" />
+          </noscript>
+        {%- else -%}
+          <script>
+            fbq('track', 'Search', {
+              content_category: 'Search Results',
+              search_string: '{{ search.terms }}',
+              {% if product_results.size > 0 %}
+              content_ids: [{% for item in search.results %}'{{ item.selected_or_first_available_variant.sku }}'{% unless forloop.last %},{% endunless %}{% endfor %}],
+              contents: [{% for item in search.results %}{ 'id': '{{ item.selected_or_first_available_variant.sku }}', 'quantity': 1 }{% unless forloop.last %},{% endunless %}{% endfor %}],
+              currency: '{{ cart.currency.iso_code }}'
+              {% endif %}              
+            });
+          </script>
+        {%- endif -%}
+      {%- endif -%}
+  {%- endcase -%}
+
+{%- endif -%}

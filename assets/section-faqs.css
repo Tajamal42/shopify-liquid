@@ -1,0 +1,37 @@
+.faqs-section {
+  margin-bottom: 8rem !important;
+}
+
+.faq__accordion + .accordion__category {
+  margin-top: 8rem;
+}
+
+.faq__accordion + .faq__accordion {
+  border-top: 0;
+}
+
+.faq__accordion details[open] .accordion__title {
+  color: rgb(var(--color-gold-dk));
+}
+
+.faq__accordion details[open] .icon-caret {
+  color: rgb(var(--color-gold-m));
+}
+
+.faq__accordion summary {
+  padding: 2rem 0;
+}
+
+.faq__accordion .accordion__title {
+  letter-spacing: 0.02rem;
+}
+
+.faq__accordion .accordion__content {
+  font-size: 1.4rem;
+  letter-spacing: 0.02rem;
+  line-height: 1.6;
+
+  padding: 0 6rem 0 2rem;
+  margin-bottom: 5rem;
+  border-left: 0.5rem solid rgb(var(--color-gold-m));
+}

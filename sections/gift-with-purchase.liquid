@@ -1,0 +1,113 @@
+{%- if settings.gwp_enable and settings.gwp_product != blank -%}
+  {%- if settings.gwp_buy_products != blank or settings.gwp_buy_collection != blank or settings.gwp_min_spend != blank -%}
+    {%- liquid
+      assign gwp_is_available = false
+      if settings.gwp_product.selected_or_first_available_variant.available and settings.gwp_product.selected_or_first_available_variant.inventory_quantity >= settings.gwp_quantity
+        assign gwp_is_available = true
+      elsif settings.gwp_product.selected_or_first_available_variant.inventory_policy == 'continue' 
+        assign gwp_is_available = true
+      endif
+    -%}
+    {%- if gwp_is_available -%}
+      {{ 'section-gift-with-purchase.css' | asset_url | stylesheet_tag }}
+
+      {%- liquid
+        assign min_spend = 0
+        if settings.gwp_min_spend != blank
+          assign currency_rate = all_products['currency-converter'].price | divided_by: 10000000000.0
+          assign min_spend = settings.gwp_min_spend | times: 100.0 | times: currency_rate | split: '.' | first
+        endif
+
+        assign min_spend_money = min_spend | money_with_currency
+
+        for item in cart.items
+          if item.variant_id == settings.gwp_product.selected_or_first_available_variant.id and item.final_line_price == 0
+            assign gwp_in_cart = true
+            break
+          endif
+        endfor
+      -%}
+      <div id="GiftWithPurchase-{{ section.id }}" class="gift-with-purchase page-width">
+        <div class="gwp-offer{% if gwp_in_cart %} gwp-offer--in-cart{% endif %}">
+          <div class="gwp-offer__info">
+            <h3 class="gwp-offer__heading h2">
+              {%- if section.settings.title != blank -%}
+                {{ section.settings.title }}
+              {%- else -%}
+                {{ settings.gwp_title }}
+              {%- endif -%}
+            </h3>
+            <div class="gwp-offer__description rte">
+              {%- if section.settings.description != blank -%}
+                {{ section.settings.description | replace: "[min_spend]", min_spend_money }}
+              {%- else -%}
+                {{ settings.gwp_description | replace: "[min_spend]", min_spend_money }}
+              {%- endif -%}
+            </div>
+          </div>
+          <div class="gwp-offer__product">
+            {% if settings.gwp_product != blank %}
+              <img
+                class="gwp-offer__product-thumbnail"
+                srcset="{% if settings.gwp_product.featured_media.preview_image.width >= 288 %}{{ settings.gwp_product.featured_media.preview_image | image_url: '288x' }} 288w,{% endif %}
+                  {% if settings.gwp_product.featured_media.preview_image.width >= 576 %}{{ settings.gwp_product.featured_media.preview_image | img_url: '576x' }} 576w,{% endif %}
+                  {% if settings.gwp_product.featured_media.preview_image.width >= 750 %}{{ settings.gwp_product.featured_media.preview_image | img_url: '750x' }} 750w,{% endif %}
+                  {% if settings.gwp_product.featured_media.preview_image.width >= 1100 %}{{ settings.gwp_product.featured_media.preview_image | img_url: '1100x' }} 1100w,{% endif %}
+                  {% if settings.gwp_product.featured_media.preview_image.width >= 1500 %}{{ settings.gwp_product.featured_media.preview_image | img_url: '1500x' }} 1500w,{% endif %}
+                  {{ settings.gwp_product.featured_media.preview_image | img_url: 'master' }} {{ settings.gwp_product.featured_media.preview_image.width }}w"
+                src="{{ settings.gwp_product.featured_media | img_url: '1500x' }}"
+                sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | times: 0.64 | round }}px, (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+                loading="lazy"
+                width="576"
+                height="{{ 576 | divided_by: settings.gwp_product.featured_media.preview_image.aspect_ratio | ceil }}"
+                alt="{{ settings.gwp_product.featured_media.preview_image.alt | escape }}"
+              >
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.gift-with-purchase.name",
+  "class": "spaced-section spaced-section--full-width section--gwp",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.gift-with-purchase.settings.header__conditions.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.gift-with-purchase.settings.paragraph__conditions.content"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.gift-with-purchase.settings.header__marketing.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.gift-with-purchase.settings.paragraph__marketing.content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.gift-with-purchase.settings.title.label"
+    },    
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.gift-with-purchase.settings.description.label",
+      "info": "t:sections.gift-with-purchase.settings.description.info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.gift-with-purchase.presets.name"
+    }
+  ]
+}
+{% endschema %}

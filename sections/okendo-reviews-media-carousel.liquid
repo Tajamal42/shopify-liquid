@@ -1,0 +1,150 @@
+{%- if section.settings.full_width == false -%}
+  <div class="okendo-reviews-media-carousel__inner page-width">
+{%- endif -%}
+
+<div
+  id="okeCarousel--{{ section.id }}"
+  data-oke-media-carousel
+  {% if section.settings.link_text != blank -%}
+    data-oke-reviews-slide-link-text="{{ section.settings.link_text }}" 
+  {% endif -%}
+
+  {% if section.settings.product != blank -%}
+    data-oke-reviews-product-id="shopify-{{ section.settings.product.id }}"
+  {% endif -%}
+
+  {% if section.settings.enable_autoplay == true -%}
+    data-oke-reviews-autoplay="true" 
+  {% endif -%}
+
+  {% if section.settings.min_images != blank -%}
+    data-oke-reviews-min-images="{{ section.settings.min_images }}"
+  {% endif -%}
+
+  {% if section.settings.slide_size and section.settings.slide_size != "medium" -%}
+    data-oke-reviews-slide-size="{{ section.settings.slide_size }}"
+  {% endif -%}
+
+  {% if section.settings.arrow_position and section.settings.arrow_position != "inside" -%}
+    data-oke-reviews-arrow-position="{{ section.settings.arrow_position }}"
+  {% endif -%}
+></div>
+
+{%- if section.settings.full_width == false -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  #okeCarousel--{{ section.id }} .okeReviews .okeReviews-mediaCarousel-overlay {
+    opacity: 1 !important;
+  }
+
+  #okeCarousel--{{ section.id }} .okeReviews .okeReviews-mediaCarousel-overlay:hover {
+    opacity: 0 !important;
+  }
+
+  #okeCarousel--{{ section.id }} .okeReviews .okeReviews-mediaCarousel .flickity-prev-next-button {
+    background-color: rgba(var(--color-gold-m), 1) !important;
+  }
+
+  #okeCarousel--{{ section.id }} .okeReviews .okeReviews-mediaCarousel .flickity-prev-next-button svg.flickity-button-icon {
+    fill: rgb(var(--color-background)) !important;
+  }
+
+  #okeCarousel--{{ section.id }} .okeReviews:hover .okeReviews-mediaCarousel .flickity-prev-next-button {
+    opacity: 1 !important;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.okendo-reviews-media-carousel.name",
+  "tag": "section",
+  "class": "product-section spaced-section okendo-reviews-media-carousel-section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "t:sections.okendo-reviews-media-carousel.settings.full_width.label",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "slide_size",
+      "options": [
+        {
+          "value": "x-small",
+          "label": "t:sections.okendo-reviews-media-carousel.settings.slide_size.option__x-small"
+        },
+        {
+          "value": "small",
+          "label": "t:sections.okendo-reviews-media-carousel.settings.slide_size.option__small"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.okendo-reviews-media-carousel.settings.slide_size.option__medium"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.okendo-reviews-media-carousel.settings.slide_size.option__large"
+        },
+        {
+          "value": "x-large",
+          "label": "t:sections.okendo-reviews-media-carousel.settings.slide_size.option__x-large"
+        }
+      ],
+      "default": "medium",
+      "label": "t:sections.okendo-reviews-media-carousel.settings.slide_size.label"
+    },
+    {
+      "type": "select",
+      "id": "arrow_position",
+      "options": [
+        {
+          "value": "inside",
+          "label": "t:sections.okendo-reviews-media-carousel.settings.arrow_position.option__inside"
+        },
+        {
+          "value": "outside",
+          "label": "t:sections.okendo-reviews-media-carousel.settings.arrow_position.option__outside"
+        }
+      ],
+      "default": "inside",
+      "label": "t:sections.okendo-reviews-media-carousel.settings.arrow_position.label"
+    },
+    {
+      "type": "number",
+      "id": "min_images",
+      "label": "t:sections.okendo-reviews-media-carousel.settings.min_images.label",
+      "info": "t:sections.okendo-reviews-media-carousel.settings.min_images.info",
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_autoplay",
+      "default": false,
+      "label": "t:sections.okendo-reviews-media-carousel.settings.enable_autoplay.label",
+      "info": "t:sections.okendo-reviews-media-carousel.settings.enable_autoplay.info"
+    },
+    {
+      "type": "text",
+      "id": "link_text",
+      "default": "Read more",
+      "label": "t:sections.okendo-reviews-media-carousel.settings.link_text.label",
+      "info": "t:sections.okendo-reviews-media-carousel.settings.link_text.info"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "t:sections.okendo-reviews-media-carousel.settings.product.label",
+      "info": "t:sections.okendo-reviews-media-carousel.settings.product.info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.okendo-reviews-media-carousel.presets.name",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

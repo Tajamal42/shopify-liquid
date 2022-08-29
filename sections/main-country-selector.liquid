@@ -1,0 +1,242 @@
+{% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+
+{{ 'template-country-selector.css' | asset_url | stylesheet_tag }}
+{{ 'section-main-country-selector.css' | asset_url | stylesheet_tag }}
+
+<style>
+:root {
+  --color-choose-your-destiny: 255, 255, 255;
+  --color-choose-your-destiny-flipped: 173, 142, 92;
+  --color-background-B2B: 0, 0, 0;
+  --color-background-DTC: 216, 189, 157;
+}
+
+{% for block in section.blocks %}
+  {% if block.settings.background_image != blank %}
+    #Panel-{{ block.type }} .selector-panel__inner {
+      background-color: rgb(var(--color-background-{{ block.type }}));
+      background-image: url({{ block.settings.background_image | image_url: width: 493 }});
+    }
+    
+    @media screen and (min-width: 768px) {
+      #Panel-{{ block.type }} .selector-panel__inner {
+        background-image: url({{ block.settings.background_image | image_url: width: 768 }});
+      }
+    }
+    
+    @media screen and (min-width: 1280px) {
+      #Panel-{{ block.type }} .selector-panel__inner {
+        background-image: url({{ block.settings.background_image | image_url: width: 1280 }});
+      }
+    }
+
+  {% else %}
+    {%- assign background_image = 'placeholder-' | append: block.type | append: '-country-selector.jpg' -%}
+    #Panel-{{ block.type }} .selector-panel__inner {
+      background-color: rgb(var(--color-background-{{ block.type }}));
+      background-image: url({{ background_image | asset_img_url: '493x' }});
+    }
+    
+    @media screen and (min-width: 768px) {
+      #Panel-{{ block.type }} .selector-panel__inner {
+        background-image: url({{ background_image | asset_img_url: '768x' }});
+      }
+    }
+    
+    @media screen and (min-width: 1280px) {
+      #Panel-{{ block.type }} .selector-panel__inner {
+        background-image: url({{ background_image | asset_img_url: '1280x' }});
+      }
+    }
+  {% endif %}
+
+  @media screen and (min-width: 1024px) {
+    country-selector.Panel-{{ block.type }}--is-open #Panel-{{ block.type }}:first-of-type .selector-panel__inner {
+      background-position: right bottom;
+      transition: none;
+    }
+  
+    country-selector.Panel-{{ block.type }}--is-open #Panel-{{ block.type }}:last-of-type .selector-panel__inner {
+      background-position: left bottom;
+      transition: none;
+    }
+  }
+{% endfor %}
+</style>
+
+<script src="{{ 'country-selector.js' | asset_url }}" defer="defer"></script>
+
+<country-selector {% if section.settings.open_default_panel %}{% if shop.metafields.settings.main.shop.mode == 'B2B' %}class="Panel-B2B--is-open"{% else %}class="Panel-DTC--is-open"{% endif %}{% endif %}>
+  <h1 class="visually-hidden">Country/Region Selector</h1>
+  {%- for block in section.blocks -%}
+    {%- liquid
+      assign logo = 'logo-' | append: block.type | append: '-default'
+      if block.type == 'DTC'
+        assign logo = logo | replace: 'default', 'black'
+      endif
+    -%}
+    <div id="Panel-{{ block.type }}" class="selector-panel{% if block.type == 'B2B' %} color-dark{% endif %}">
+      <div class="selector-panel__inner">
+        <header class="selector-panel__header">
+          <picture class="selector-panel__logo brow-code__logo--new">
+            <source srcset="{{ logo | append: '_desktop.svg' | asset_url }}" media="(min-width: 460px)">
+            <img src="{{ logo | append: '_mobile.svg' | asset_url }}" width="150" height="38" alt="Brow Code">
+          </picture>
+          <h2 class="visually-hidden">{{ block.settings.heading }}</h2>
+          {% if block.settings.message != blank %}<p class="selector-panel__description">{{ block.settings.message }}</p>{% endif %}
+        </header>
+        <ul class="selector-panel__list list-unstyled">
+          {%- if shop.metafields.settings.hreflang.all_storefronts != blank -%}
+            {%- for storefront in shop.metafields.settings.hreflang.all_storefronts -%}
+              {%- if storefront.urls[block.type] != blank -%}
+                <li class="selector-panel__list-item">
+                  <a class="selector-panel__link link full-unstyled-link"
+                    href="{{ storefront.urls[block.type] }}"
+                    title="Shop Brow Code {{ storefront.country.name }}"
+                  >
+                    {{ storefront.country.name }}
+                  </a>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          {%- elsif section.settings.linklist_fallback != blank -%}
+            {%- assign linklist_fallback = section.settings.linklist_fallback.links | where: "title", block.type -%}
+            {%- for link in linklist_fallback[0].links -%}
+                <li class="selector-panel__list-item">
+                  <a class="selector-panel__link link full-unstyled-link"
+                    href="link.url"
+                    title="Shop {{ link.title }}"
+                  >
+                    {{ link.title }}
+                  </a>
+                </li>
+            {%- endfor -%}
+          {%- endif -%}
+          <li class="selector-panel__list-item selector-panel__list-item--back">
+            <button class="selector-panel__button selector-panel__button--back link full-unstyled-link">
+              {% render 'icon-arrow' %} {{ block.settings.button_label | default: 'Back' }}
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  {%- endfor -%}
+</country-selector>
+
+{% schema %}
+{
+  "name": "t:sections.main_country_selector.name",
+  "class": "section-country-selector",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.main_country_selector.settings.header__notes.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.main_country_selector.settings.paragraph__notes.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "open_default_panel",
+      "label": "t:sections.main_country_selector.settings.open_default_panel.label",
+      "default": true
+    },
+    {
+      "type": "link_list",
+      "id": "linklist_fallback",
+      "label": "t:sections.main_country_selector.settings.linklist_fallback.label",
+      "info": "t:sections.main_country_selector.settings.linklist_fallback.info"
+    }
+  ],
+  "max_blocks": 2,
+  "blocks": [
+    {
+      "name": "B2B Panel",
+      "type": "B2B",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.main_country_selector.blocks.settings.heading.label",
+          "info": "t:sections.main_country_selector.blocks.settings.heading.info",
+          "default": "Brow Code Professional"
+        },
+        {
+          "type": "image_picker",
+          "id": "background_image",
+          "label": "t:sections.main_country_selector.blocks.settings.background_image.label"
+        },
+        {
+          "type": "textarea",
+          "id": "message",
+          "label": "t:sections.main_country_selector.blocks.settings.message.label",
+          "default": "Are you a Professional Brow Stylist or qualified Esthetician?"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:sections.main_country_selector.blocks.settings.button_label.label",
+          "default": "View other stores"
+        }
+      ]
+    },
+    {
+      "name": "DTC Panel",
+      "type": "DTC",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.main_country_selector.blocks.settings.heading.label",
+          "info": "t:sections.main_country_selector.blocks.settings.heading.info",
+          "default": "Brow Code For Me"
+        },
+        {
+          "type": "image_picker",
+          "id": "background_image",
+          "label": "t:sections.main_country_selector.blocks.settings.background_image.label"
+        },
+        {
+          "type": "text",
+          "id": "message",
+          "label": "t:sections.main_country_selector.blocks.settings.message.label",
+          "default": "Are you looking for Brow Cosmetics and DIY Tint Kits?"
+        },
+        {
+          "type": "textarea",
+          "id": "button_label",
+          "label": "t:sections.main_country_selector.blocks.settings.button_label.label",
+          "default": "View other stores"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Country Selector",
+      "settings": {
+        "open_default_panel": true,
+        "linklist_fallback": "country-selector-fallback"
+      },
+      "blocks": [
+        {
+          "type": "B2B",
+          "settings": {
+            "message": "Are you a Professional Brow Stylist or qualified Esthetician?",
+            "button_label": "View professional stores"
+          }
+        },
+        {
+          "type": "DTC",
+          "settings": {
+            "message": "Are you looking for Brow Cosmetics and DIY Tint Kits?",
+            "button_label": "View other stores"
+          }
+        }
+      ]
+    }
+  ],
+  "templates": ["page"]
+}
+{% endschema %}

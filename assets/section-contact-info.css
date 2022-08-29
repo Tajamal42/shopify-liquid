@@ -1,0 +1,30 @@
+.contact-info__description {
+  margin: 1rem 0 2rem;
+}
+
+.contact-info__group {
+  display: table-row;
+  padding: 0;
+  margin: 0;
+}
+
+.contact-info__label,
+.contact-info__link {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 0.3rem 1.5rem;
+}
+
+.contact-info__label {
+  min-width: 9rem;
+  padding-left: 0;
+
+  color: rgb(var(--color-gold-dkr));
+  font-size: 90%;
+  letter-spacing: 0.02rem;
+}
+
+.contact-info__link .icon {
+  vertical-align: text-bottom;
+  margin-right: 0.5rem;
+}

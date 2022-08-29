@@ -1,0 +1,42 @@
+{{ 'component-rte.css' | asset_url | stylesheet_tag }}
+{{ 'component-accordion.css' | asset_url | stylesheet_tag }}
+{{ 'section-product-key-features.css' | asset_url | stylesheet_tag }}
+
+{%- if product.metafields.features.key_features['en'] != blank -%}
+  <section class="page-width page-width--narrow">
+    <div class="product__key-features-wrapper">
+      <div id="ProductKeyFeatures-{{ section.id }}" class="product__key-features-container product__accordion accordion"">
+        <details>
+          <summary>
+            <div class="summary__title details__title">
+              <h2>{{ 'sections.product_key_features.section_title' | t }}</h2>
+            </div>
+            {% render 'icon-caret' %}
+          </summary>
+          <div class="details__content rte">
+            {% if product.metafields.features.key_features[request.locale.iso_code] != blank %}
+              {{ product.metafields.features.key_features[request.locale.iso_code] }}
+            {% else %}
+              {{ product.metafields.features.key_features['en'] }}
+            {% endif %}
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.product-key-features.name",
+  "tag": "section",
+  "class": "product-section spaced-section product-master-section product-key-features-section",
+  "templates": ["product"],
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.product-key-features.settings.paragraph__1.content"
+    }
+  ]
+}
+{% endschema %}

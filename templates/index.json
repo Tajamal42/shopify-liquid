@@ -1,0 +1,127 @@
+{
+  "sections": {
+    "16502462681dc9060c": {
+      "type": "video-hosted",
+      "settings": {
+        "poster": "shopify:\/\/shop_images\/brow-code_discover-the-range_m.jpg",
+        "filename": "brow-code_discover-the-range_m.mp4",
+        "aspect_ratio": "4-5",
+        "desktop_poster": "shopify:\/\/shop_images\/brow-code_discover-the-range.jpg",
+        "desktop_filename": "brow-code_discover-the-range.mp4",
+        "desktop_aspect_ratio": "32-9",
+        "link": "shopify:\/\/collections",
+        "full_width": true,
+        "controls": false,
+        "playsinline": true,
+        "loop": true,
+        "autoplay": true,
+        "preload": "auto"
+      }
+    },
+    "featured_products": {
+      "type": "featured-collection",
+      "settings": {
+        "title": "Professional Only Kits",
+        "collection": "professional-brow-kits",
+        "products_to_show": 8,
+        "show_view_all": true,
+        "swipe_on_mobile": true,
+        "image_ratio": "square",
+        "show_secondary_image": true,
+        "add_image_padding": false,
+        "show_image_outline": true,
+        "show_vendor": false,
+        "show_rating": false
+      }
+    },
+    "1635112185919f47c3": {
+      "type": "okendo-reviews-media-carousel",
+      "settings": {
+        "full_width": true,
+        "slide_size": "x-large",
+        "arrow_position": "inside",
+        "min_images": 8,
+        "enable_autoplay": true,
+        "link_text": "Read more",
+        "product": ""
+      }
+    },
+    "16329612102ec8883f": {
+      "type": "collection-list",
+      "blocks": {
+        "16329612102ec8883f-0": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "brow-tint"
+          }
+        },
+        "16329612102ec8883f-1": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "brow-henna"
+          }
+        },
+        "16329612102ec8883f-2": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "brow-lamination"
+          }
+        },
+        "92f444b8-6059-4a99-9117-eaa6f0963a2d": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "brow-wax"
+          }
+        },
+        "bc6ab822-c7cc-49c2-b449-617a5cd6b853": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "brow-cosmetics"
+          }
+        },
+        "a50d3aa9-3d60-4585-9091-150df6b59e7e": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": "brow-accessories"
+          }
+        }
+      },
+      "block_order": [
+        "16329612102ec8883f-0",
+        "16329612102ec8883f-1",
+        "16329612102ec8883f-2",
+        "92f444b8-6059-4a99-9117-eaa6f0963a2d",
+        "bc6ab822-c7cc-49c2-b449-617a5cd6b853",
+        "a50d3aa9-3d60-4585-9091-150df6b59e7e"
+      ],
+      "settings": {
+        "title": "Shop Brow Code Service Collections",
+        "image_ratio": "square",
+        "color_scheme": "light",
+        "swipe_on_mobile": true,
+        "image_padding": false,
+        "show_view_all": false
+      }
+    },
+    "16329593742c689d6a": {
+      "type": "featured-blog",
+      "settings": {
+        "heading": "By The Code Blog",
+        "blog": "by-the-code",
+        "post_limit": 3,
+        "show_image": true,
+        "show_date": false,
+        "show_author": false,
+        "soft_background": false,
+        "show_view_all": true
+      }
+    }
+  },
+  "order": [
+    "16502462681dc9060c",
+    "featured_products",
+    "1635112185919f47c3",
+    "16329612102ec8883f",
+    "16329593742c689d6a"
+  ]
+}

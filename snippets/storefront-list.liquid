@@ -1,0 +1,24 @@
+{%- if linklists.storefronts.links != blank -%}
+  <ul role="list" class="storefront-list">
+    {%- for storefront in linklists.storefronts.links -%}
+      {%- liquid
+        assign storefront_array = storefront.title | split: '|'
+        assign storefront_modes = storefront_array[1] | strip
+        assign storefront_name = storefront_array | last | strip
+
+        assign current_mode = shop.metafields.settings.main.shop.mode
+        if current_mode == 'B2B' and storefront_modes contains 'B2B'
+          assign storefront_url = storefront.url | replace: 'www.', 'pro.'
+        elsif current_mode == 'DTC' and storefront_modes contains 'DTC'
+          assign storefront_url = storefront.url
+        endif
+      -%}
+
+      <li class="storefront-list__item">
+        <a class="storefront-list__link" href="{{ storefront_url }}">
+          {{- storefront_name | replace: '*', '' | escape -}}
+        </a>
+      </li>
+    {%- endfor -%}
+  </ul>
+{%- endif -%}

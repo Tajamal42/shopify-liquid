@@ -1,0 +1,42 @@
+{
+  "sections": {
+    "cart-items": {
+      "type": "main-cart-items",
+      "settings": {
+        "show_vendor": false
+      }
+    },
+    "cart-footer": {
+      "type": "main-cart-footer",
+      "blocks": {
+        "buttons": {
+          "type": "buttons",
+          "settings": {
+          }
+        },
+        "fa896dec-a510-4fa7-8950-2604de7cb02a": {
+          "type": "cart_attribute",
+          "settings": {
+            "title": "Terms and conditions",
+            "attribute_value": "",
+            "description": "<p>I have read and accept the <a href=\"\/pages\/terms-and-conditions\" target=\"_blank\">Terms and Conditions<\/a><\/p>",
+            "required": true,
+            "checked": false,
+            "included_countries": "",
+            "excluded_countries": ""
+          }
+        }
+      },
+      "block_order": [
+        "buttons"
+      ],
+      "settings": {
+        "show_cart_note": false
+      }
+    }
+  },
+  "order": [
+    "cart-items",
+    "cart-footer"
+  ]
+}

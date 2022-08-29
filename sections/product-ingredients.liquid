@@ -1,0 +1,58 @@
+{{ 'component-rte.css' | asset_url | stylesheet_tag }}
+{{ 'component-accordion.css' | asset_url | stylesheet_tag }}
+{{ 'section-product-ingredients.css' | asset_url | stylesheet_tag }}
+
+{% if product.metafields.ingredients.group_description[0]['en'] != blank %}
+  <section class="page-width page-width--narrow">
+    <div class="product__ingredients-wrapper">
+      <div id="ProductIngredients-{{ section.id }}" class="product__ingredients-container product__accordion accordion">
+        <details>
+          <summary>
+            <div class="summary__title ingredients__title">
+              <h2>{{ 'sections.product_ingredients.section_title' | t }}</h2>
+            </div>
+            {% render 'icon-caret' %}
+          </summary>
+          <div class="ingredients__content">
+            {%- for group in product.metafields.ingredients.group_description -%}
+              {% if product.metafields.ingredients.group_title[forloop.index0][request.locale.iso_code] != blank %}
+                <h3 class="ingredients__group-title">{{ product.metafields.ingredients.group_title[forloop.index0][request.locale.iso_code] }}</h3>
+              {% else %}
+                <h3 class="ingredients__group-title">{{ product.metafields.ingredients.group_title[forloop.index0]['en'] }}</h3>
+              {% endif %}
+              <div class="rte ingredients__group-list">
+                {% if product.metafields.ingredients.group_description[forloop.index0][request.locale.iso_code] != blank %}
+                  {{ product.metafields.ingredients.group_description[forloop.index0][request.locale.iso_code] }}
+                {% else %}
+                  {{ product.metafields.ingredients.group_description[forloop.index0]['en'] }}
+                {% endif %}
+              </div>
+            {%- endfor -%}
+            {% if product.metafields.files.msds != blank %}
+              <div class="ingredients__files">              
+                  <a class="button button--primary" href="{{ product.metafields.files.msds.value.url }}" target="_blank" rel="noopener noreferrer">
+                    {{ 'sections.product_ingredients.download_button_label' | t }}
+                  </a>
+              </div>
+            {% endif %}
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.product-ingredients.name",
+  "tag": "section",
+  "class": "product-section spaced-section product-master-section product-ingredients-section",
+  "templates": ["product"],
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.product-ingredients.settings.paragraph__1.content"
+    }
+  ]
+}
+{% endschema %}

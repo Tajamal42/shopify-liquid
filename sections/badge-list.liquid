@@ -1,0 +1,126 @@
+{{ 'section-badge-list.css' | asset_url | stylesheet_tag }}
+
+<section class="page-width">
+  <div class="badge-list__wrapper">
+    <div id="BadgeList-{{ section.id }}" class="badge-list__container">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="badge-list__heading">{{ section.settings.heading | escape }}</h2>
+      {%- else -%}
+        <h2 class="badge-list__heading visually-hidden">{{ 'sections.badge-list.section_title' | t }}</h2>
+      {%- endif -%}
+
+      <ul class="badge-list__list">
+        {% for block in section.blocks %}
+          {%- case block.type -%}
+
+            {%- when 'badge' -%}
+              {%- liquid
+                assign badge_index = block.settings.badge_index | times: 1
+                assign badge_handle = shop.metafields.globals.badge_label[badge_index] | handleize
+                if shop.metafields.globals.badge_title[badge_index][request.locale.iso_code] != blank
+                  assign badge_title = shop.metafields.globals.badge_title[badge_index][request.locale.iso_code]
+                else
+                  assign badge_title = shop.metafields.globals.badge_title[badge_index]['en']
+                endif
+              -%}
+              <li class="badge-list__list-item badge--{{ badge_handle }}">
+                <div class="badge-list__icon">
+                  {% render 'icon-badges', icon: badge_handle %}
+                </div>
+                <div class="badge-list__info">
+                  <h3 class="badge-list__title">{{ badge_title }}</h3>
+                  {%- if section.settings.show_summary -%}
+                    {%- liquid 
+                      if shop.metafields.globals.badge_summary[badge_index][request.locale.iso_code] != blank
+                        assign badge_summary = shop.metafields.globals.badge_summary[badge_index][request.locale.iso_code]
+                      else
+                        assign badge_summary = shop.metafields.globals.badge_summary[badge_index]['en']
+                      endif
+                    -%}
+                    <p class="badge-list__summary">{{ badge_summary }}</p>
+                  {%- endif -%}
+                </div>
+              </li>
+
+          {%- endcase -%}
+        {%- endfor -%}
+      </ul>      
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.badge-list.name",
+  "tag": "section",
+  "class": "spaced-section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.badge-list.settings.paragraph__1.content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_summary",
+      "label": "Show summary",
+      "info": "Badge summaries can be edited on [global metafields](/admin/apps/accentuate)",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Badge",
+      "type": "badge",
+      "settings": [
+        {
+          "type": "select",
+          "id": "badge_index",
+          "label": "Select the badge",
+          "info": "Badges can be edited on [global metafields](/admin/apps/accentuate)",
+          "options": [
+            {
+              "value": "0",
+              "label": "Cruelty-Free"
+            },
+            {
+              "value": "1",
+              "label": "Ethically Sourced"
+            },
+            {
+              "value": "2",
+              "label": "Natural"
+            },
+            {
+              "value": "3",
+              "label": "Paraben-Free"
+            },
+            {
+              "value": "4",
+              "label": "Sulphate-Free"
+            },
+            {
+              "value": "5",
+              "label": "Synthetic Fragrance-Free"
+            },
+            {
+              "value": "6",
+              "label": "Vegan"
+            }
+          ],
+          "default": "0"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.badge-list.presets.name"
+    }
+  ]
+}
+{% endschema %}

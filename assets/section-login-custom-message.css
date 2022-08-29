@@ -1,0 +1,106 @@
+.login-custom-message {
+  margin: auto;
+  text-align: center;
+}
+
+.login-custom-message.login-custom-message--full-width {
+  max-width: initial;
+  width: 100%;
+}
+
+.login-custom-message__blocks {
+  margin: auto;
+  /* 2.5rem margin on left & right */
+  width: calc(100% - 5rem / var(--font-body-scale));
+}
+
+.login-custom-message__blocks * {
+  overflow-wrap: break-word;
+}
+
+.login-custom-message__blocks .rte p {
+  margin-bottom: 2rem;
+
+  font-size: 85%;
+  letter-spacing: 0.03rem;
+  line-height: 1.5;
+}
+
+.login-custom-message__blocks .rte p:last-child {
+  margin-bottom: 0;
+}
+
+.login-custom-message__blocks .rte a {
+  display: inline;
+}
+
+.login-custom-message__blocks a.button {
+  display: inline-flex;
+  
+  font-size: 1.5rem;
+  color: rgb(var(--color-button-text));
+  text-decoration: none;
+
+  background-color: rgba(var(--color-button), var(--alpha-button-background));
+  border: 0.1rem solid transparent;
+  box-shadow: 0 0 0 0.1rem rgba(var(--color-button), var(--alpha-button-border));
+}
+
+.login-custom-message__blocks a.button--primary {
+  --color-button: var(--color-black);
+  --color-button-text: var(--color-white);
+  --alpha-button-background: 1;
+  --alpha-button-border: 0;
+}
+
+.login-custom-message__blocks a.button--secondary {
+  --color-button: var(--color-black);
+  --color-button-text: var(--color-black);
+  --alpha-button-background: 0;
+  --alpha-button-border: 1;
+}
+
+.login-custom-message--full-width .login-custom-message__blocks {
+  /* 4rem (1.5rem + 2.5rem) margin on left & right */
+  width: 100%;
+}
+
+.login-custom-message:not(.login-custom-message--full-width),
+.login-custom-message--full-width.color-background-1 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+  
+@media screen and (min-width: 750px) {
+  .login-custom-message:not(.login-custom-message--full-width),
+  .login-custom-message--full-width.color-background-1 {
+    margin-top: calc(1rem + var(--page-width-margin));
+    margin-bottom: calc(1rem + var(--page-width-margin));
+  }
+
+  .login-custom-message--full-width .login-custom-message__blocks {
+    /* 7.5rem (5rem + 2.5rem) margin on left & right */
+    width: 100%;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .login-custom-message__blocks {
+    max-width: 120rem;
+  }
+}
+
+/* Blocks */
+
+.login-custom-message__blocks > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.login-custom-message__blocks > * + * {
+  margin-top: 2rem;
+}
+
+.login-custom-message__blocks > * + a {
+  margin-top: 3rem;
+}

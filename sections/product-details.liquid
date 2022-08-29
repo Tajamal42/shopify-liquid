@@ -1,0 +1,57 @@
+{{ 'component-rte.css' | asset_url | stylesheet_tag }}
+{{ 'component-accordion.css' | asset_url | stylesheet_tag }}
+{{ 'section-product-details.css' | asset_url | stylesheet_tag }}
+
+{%- if product.metafields.content.description['en'] != blank -%}
+  <section class="page-width page-width--narrow">
+    <div class="product__details-wrapper">
+      <div id="ProductDetails-{{ section.id }}" class="product__details-container product__accordion accordion">
+        <details>
+          <summary>
+            <div class="summary__title details__title">
+              <h2>{{ 'sections.product_details.section_title' | t }}</h2>
+            </div>
+            {% render 'icon-caret' %}
+          </summary>
+          <div class="details__content rte">
+            {% if product.metafields.content.description[request.locale.iso_code] != blank %}
+              {{ product.metafields.content.description[request.locale.iso_code] }}
+            {% else %}
+              {{ product.metafields.content.description['en'] }}
+            {% endif %}
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.product-details.name",
+  "tag": "section",
+  "class": "product-section spaced-section product-master-section product-details-section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.product-details.settings.paragraph__1.content"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "text",
+      "default": "Details",
+      "id": "heading",
+      "label": "Section heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "Show heading",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

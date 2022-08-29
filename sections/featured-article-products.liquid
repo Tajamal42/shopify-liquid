@@ -1,0 +1,149 @@
+{{ 'section-featured-article-products.css' | asset_url | stylesheet_tag }}
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+{{ 'component-product-grid.css' | asset_url | stylesheet_tag }}
+
+<link rel="stylesheet" href="{{ 'component-slider.css' | asset_url }}" media="print" onload="this.media='all'">
+
+<noscript>{{ 'component-slider.css' | asset_url | stylesheet_tag }}</noscript>
+
+{% if section.settings.article.metafields.features.featured_products.value != blank or article.metafields.features.featured_products.value != blank %}
+  {%- liquid
+    if section.settings.article.metafields.features.featured_products.value != blank
+      assign featured_products = section.settings.article.metafields.features.featured_products.value
+    elsif article.metafields.features.featured_products.value != blank
+      assign featured_products = article.metafields.features.featured_products.value
+    endif
+
+    assign products_displayed_count = 0
+
+    for product in featured_products
+      assign products_displayed_count = products_displayed_count | plus: 1
+    endfor
+  -%}
+
+  <div class="products page-width{% if section.settings.swipe_on_mobile == true %} page-width-desktop{% endif %}{% if products_displayed_count <= 2 %} products-2-col{% endif %}">
+    <div class="title-wrapper-with-link{% if section.settings.title == blank %} title-wrapper-with-link--no-heading{% endif %}{% if products_displayed_count > 2 and section.settings.swipe_on_mobile %} title-wrapper--self-padded-tablet-down{% endif %}">
+      <h2 class="title{% if section.settings.title == blank %} title--no-heading{% endif %}">{{ section.settings.title | escape }}</h2>
+    </div>
+
+    <slider-component class="slider-mobile-gutter">
+      <ul class="grid grid--2-col product-grid{% if products_displayed_count == 4 or products_displayed_count == 0 %} grid--2-col-tablet grid--4-col-desktop{% else %} grid--3-col-tablet{% endif %}{% if products_displayed_count > 5 %} grid--one-third-max grid--4-col-desktop grid--quarter-max{% endif %}{% if products_displayed_count > 2 and section.settings.swipe_on_mobile %} slider slider--tablet grid--peek{% endif %}" role="list">
+        {%- for product in featured_products -%}
+          <li class="grid__item{% if products_displayed_count > 2 and section.settings.swipe_on_mobile %} slider__slide{% endif %}">
+            {% render 'product-card',
+              product_card_product: product,
+              media_size: section.settings.image_ratio,
+              show_secondary_image: section.settings.show_secondary_image,
+              add_image_padding: section.settings.add_image_padding,
+              show_vendor: section.settings.show_vendor,
+              show_image_outline: section.settings.show_image_outline,
+              show_rating: section.settings.show_rating,
+              show_tagline: true
+            %}
+          </li>
+        {%- endfor -%}
+      </ul>
+      {%- if products_displayed_count > 2 and section.settings.swipe_on_mobile -%}
+        <div class="slider-buttons no-js-hidden{% if products_displayed_count < 4 %} medium-hide{% endif %}{% if products_displayed_count < 3 %} small-hide{% endif %}">
+          <div class="slider-counter caption">
+            <span class="slider-counter--current">1</span>
+            <span aria-hidden="true"> / </span>
+            <span class="visually-hidden">{{ 'accessibility.of' | t }}</span>
+            <span class="slider-counter--total">{{ products_displayed_count }}</span>
+          </div>
+          <button type="button" class="slider-button slider-button--prev" name="previous" aria-label="{{ 'accessibility.previous_slide' | t }}">{% render 'icon-caret' %}</button>
+          <button type="button" class="slider-button slider-button--next" name="next" aria-label="{{ 'accessibility.next_slide' | t }}">{% render 'icon-caret' %}</button>
+        </div>
+      {%- endif -%}
+    </slider-component>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "t:sections.featured-article-products.name",
+  "tag": "section",
+  "class": "spaced-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "default": "Featured products",
+      "label": "t:sections.featured-article-products.settings.title.label"
+    },
+    {
+      "type": "article",
+      "id": "article",
+      "label": "t:sections.featured-article-products.settings.article.label",
+      "info": "t:sections.featured-article-products.settings.article.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "swipe_on_mobile",
+      "default": true,
+      "label": "t:sections.featured-article-products.settings.swipe_on_mobile.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.featured-article-products.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.featured-article-products.settings.image_ratio.options__1.label"
+        },
+        {
+          "value": "portrait",
+          "label": "t:sections.featured-article-products.settings.image_ratio.options__2.label"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.featured-article-products.settings.image_ratio.options__3.label"
+        }
+      ],
+      "default": "portrait",
+      "label": "t:sections.featured-article-products.settings.image_ratio.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "default": true,
+      "label": "t:sections.featured-article-products.settings.show_secondary_image.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "add_image_padding",
+      "default": false,
+      "label": "t:sections.featured-article-products.settings.add_image_padding.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image_outline",
+      "default": false,
+      "label": "t:sections.featured-article-products.settings.show_image_outline.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "default": false,
+      "label": "t:sections.featured-article-products.settings.show_vendor.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "default": true,
+      "label": "t:sections.featured-article-products.settings.show_rating.label",
+      "info": "t:sections.featured-article-products.settings.show_rating.info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.featured-article-products.presets.name"
+    }
+  ]
+}
+{% endschema %}

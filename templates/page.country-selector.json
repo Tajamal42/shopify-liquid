@@ -1,0 +1,35 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-country-selector",
+      "blocks": {
+        "B2B": {
+          "type": "B2B",
+          "settings": {
+            "message": "Are you a Professional Brow Stylist or qualified Esthetician?",
+            "button_label": "View other stores"
+          }
+        },
+        "DTC": {
+          "type": "DTC",
+          "settings": {
+            "message": "Are you looking for Brow Cosmetics and DIY Tint Kits?",
+            "button_label": "View other stores"
+          }
+        }
+      },
+      "block_order": [
+        "B2B",
+        "DTC"
+      ],
+      "settings": {
+        "open_default_panel": true,
+        "linklist_fallback": "country-selector-fallback"
+      }
+    }
+  },
+  "layout": "blank",
+  "order": [
+    "main"
+  ]
+}

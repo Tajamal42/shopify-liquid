@@ -1,0 +1,277 @@
+{% comment %}theme-check-disable RemoteAsset,ImgLazyLoading{% endcomment %}
+
+{%- if first_time_accessed -%}
+
+  {% comment %}
+    Variable Declaration
+    ====================
+  {% endcomment %}
+  {%- liquid
+    assign SHOP_COUNTRY = shop.metafields.settings.main.shop_country
+    assign SHOP_LOCALIZATION = localization.country.iso_code
+
+    if SHOP_LOCALIZATION != SHOP_COUNTRY and shop.metafields.settings.tags.gmc[SHOP_LOCALIZATION].account_id != blank
+      assign GMC_COUNTRY = SHOP_LOCALIZATION
+      assign GMC_LANG = shop.metafields.settings.tags.gmc[SHOP_LOCALIZATION].feed_lang
+      assign GMC_ID = shop.metafields.settings.tags.gmc[SHOP_LOCALIZATION].account_id
+    else
+      assign GMC_COUNTRY = SHOP_COUNTRY
+      assign GMC_LANG = shop.metafields.settings.tags.gmc.feed_lang
+      assign GMC_ID = shop.metafields.settings.tags.gmc.account_id
+    endif
+
+    assign ADS_CONVERSION_ID = shop.metafields.settings.tags.google_ads.purchase_conversion.id
+    assign ADS_CONVERSION_LABEL = shop.metafields.settings.tags.google_ads.purchase_conversion.label
+
+    if ADS_CONVERSION_ID != blank and ADS_CONVERSION_LABEL != blank
+      assign ADS_SEND_TO = ADS_CONVERSION_ID | append: '/' | append: ADS_CONVERSION_LABEL
+    endif
+
+    assign currencies_using_comma_decimals = 'ANG,ARS,BRL,BYN,BYR,CLF,CLP,COP,CRC,CZK,DKK,EUR,HRK,HUF,IDR,ISK,MZN,NOK,PLN,RON,RUB,SEK,TRY,UYU,VES,VND' | split: ','
+    assign uses_comma_decimals = false
+    if currencies_using_comma_decimals contains checkout.currency
+      assign uses_comma_decimals = true
+    endif
+
+    assign order_quantity = 0
+    for item in checkout.line_items
+      assign order_quantity = order_quantity | plus: item.quantity
+    endfor
+  -%}
+
+  {% comment %}
+    Google Ads - Enhanced Event Tracking
+    ====================================
+  {% endcomment %}
+  {%- if ADS_SEND_TO != blank or GMC_ID != blank -%}
+    <script>
+      var enhanced_conversion_data = {
+        {% unless checkout.email == blank %}"email": "{{ checkout.email | downcase | sha256 }}",{% endunless %}
+        {% unless billing_address.phone == blank %}"phone_number": "{{ billing_address.phone | sha256 }}",{% endunless %}
+        {% unless billing_address.first_name == blank %}"first_name": "{{ billing_address.first_name | sha256 }}",{% endunless %}
+        {% unless billing_address.last_name == blank %}"last_name": "{{ billing_address.last_name | sha256 }}",{% endunless %}
+        "home_address": {
+          {% unless billing_address.street == blank %}"street": "{{ billing_address.street }}",{% endunless %}
+          {% unless billing_address.city == blank %}"city": "{{ billing_address.city }}",{% endunless %}
+          {% unless billing_address.province_code == blank %}"region": "{{ billing_address.province_code }}",{% endunless %}
+          {% unless billing_address.zip == blank %}"postal_code": "{{ billing_address.zip }}",{% endunless %}
+          {% unless billing_address.country_code == blank %}"country": "{{ billing_address.country_code }}"{% endunless %}
+        }
+      };
+
+      if (typeof window.gtag !== 'undefined') {
+        gtag('set', 'user_data', {
+          {% unless checkout.email == blank %}"email": "{{ checkout.email | downcase }}",{% endunless %}
+          {% unless checkout.customer.phone == blank %}"phone_number": "{{ checkout.customer.phone }}",{% endunless %}
+          "address": {
+            {% unless billing_address.first_name == blank %}"first_name": "{{ billing_address.first_name }}",{% endunless %}
+            {% unless billing_address.last_name == blank %}"last_name": "{{ billing_address.last_name }}",{% endunless %}
+            {% unless billing_address.street == blank %}"street": "{{ billing_address.street }}",{% endunless %}
+            {% unless billing_address.city == blank %}"city": "{{ billing_address.city }}",{% endunless %}
+            {% unless billing_address.province_code == blank %}"region": "{{ billing_address.province_code }}",{% endunless %}
+            {% unless billing_address.zip == blank %}"postal_code": "{{ billing_address.zip }}",{% endunless %}
+            {% unless billing_address.country_code == blank %}"country": "{{ billing_address.country_code }}"{% endunless %}
+          }
+        });
+
+        gtag('event', 'purchase', {
+          {% if ADS_SEND_TO != blank -%}
+          'send_to': '{{ ADS_SEND_TO }}',
+          {% endif -%}
+          'transaction_id': '{{ order.order_number }}',
+          'value': parseFloat(Shopify.checkout.total_price_set.presentment_money.amount),
+          'currency': Shopify.checkout.total_price_set.presentment_money.currency_code,
+          'discount': discount(),
+          {% if GMC_ID != blank -%}
+          'aw_merchant_id': '{{ GMC_ID }}',
+          'aw_feed_country': '{{ GMC_COUNTRY }}',
+          'aw_feed_language': '{{ GMC_LANG }}',
+          {% endif -%}
+          'items': items()
+        });
+
+        function discount(){
+          if (Shopify.checkout.discount == null) {
+            return 0;
+          } else {
+            return Shopify.checkout.discount.amount;
+          }
+        }
+
+        function items(){
+          var jsonarray = [];
+          for (var line_item_count = 0; line_item_count < Shopify.checkout.line_items.length; line_item_count++) {
+            var jsonobj = {
+              id: `shopify_{{ SHOP_COUNTRY }}_${ Shopify.checkout.line_items[line_item_count].product_id }_${ Shopify.checkout.line_items[line_item_count].variant_id }`,
+              quantity: Shopify.checkout.line_items[line_item_count].quantity,
+              price: Shopify.checkout.line_items[line_item_count].line_price
+            };
+            jsonarray.push(jsonobj)
+          }
+          return jsonarray;
+        }
+      }
+    </script>
+  {%- endif -%}
+
+  {% comment %}
+    Facebook Tag - Event Tracking
+    ==============================
+  {% endcomment %}
+  {%- if shop.metafields.settings.tags.facebook.enable and shop.metafields.settings.tags.facebook.tag_id != blank -%}
+    <script>
+      if (typeof window.fbq !== 'undefined') {
+        fbq('track', 'Purchase', {
+          content_name: 'Purchase Complete',
+          content_type: 'product',
+          contents: [
+            {% for item in checkout.line_items -%}
+              {
+                id: '{{ item.sku }}',
+                quantity: {{ item.quantity | json }}
+              }{% unless forloop.last %},{% endunless %}
+            {%- endfor %}
+          ],
+          content_ids: [
+          {% for item in checkout.line_items -%}
+            {{ item.sku | json }}{% unless forloop.last %},{% endunless %}
+          {%- endfor %}
+          ],
+          num_items: {{ order_quantity | json }},
+          value: parseFloat(Shopify.checkout.total_price_set.presentment_money.amount),
+          currency: Shopify.checkout.total_price_set.presentment_money.currency_code          
+        });
+      }
+    </script>
+  {%- endif -%}
+
+  {% comment %}
+    Microsoft Advertising UET Tag - Event Tracking
+    ==============================================
+  {% endcomment %}
+  {%- if shop.metafields.settings.tags.microsoft_uet.enable and shop.metafields.settings.tags.microsoft_uet.tag_id != blank -%}
+    
+    <script>
+      if (typeof window.uetq !== 'undefined') {
+        window.uetq = window.uetq || [];
+        window.uetq.push('event', 'purchase', {
+          'transaction_id': '{{ checkout.name }}',
+          'ecomm_prodid': [
+            {% for item in checkout.line_items -%}
+              'shopify_{{ SHOP_COUNTRY }}_{{ item.product_id }}_{{ item.variant_id }}'
+            {%- unless forloop.last -%},
+            {% endunless -%}
+            {%- endfor %}
+          ],
+          'ecomm_pagetype': 'purchase',
+          'ecomm_totalvalue': parseFloat(Shopify.checkout.total_price_set.presentment_money.amount),
+          'revenue_value': parseFloat(Shopify.checkout.total_price_set.presentment_money.amount),
+          'currency': Shopify.checkout.total_price_set.presentment_money.currency_code,
+          'items': [
+          {% for item in checkout.line_items -%}
+            {% if uses_comma_decimals -%}
+              {% assign item_final_price = item.final_price | money_without_currency | replace: '.', '' | replace: ',', '.' | times: 1 %}
+            {% else %}
+              {% assign item_final_price = item.final_price | money_without_currency | replace: ',', '' | times: 1 %}
+            {% endif %}
+            {
+              'id': 'shopify_{{ SHOP_COUNTRY }}_{{ item.product_id }}_{{ item.variant_id }}',
+              'quantity': {{ item.quantity | json }},
+              'price': {{ item_final_price | json }}
+            }
+          {%- unless forloop.last -%},
+          {% endunless -%}
+          {%- endfor %}
+          {% assign item_final_price = nil %}
+          ]
+        });
+      }
+    </script>
+  {%- endif -%}
+
+  {% comment %}
+    Pinterest Tag - Event Tracking
+    ==============================
+  {% endcomment %}
+  {%- if shop.metafields.settings.tags.pinterest.enable and shop.metafields.settings.tags.pinterest.tag_id != blank -%}
+    <script>
+      if (typeof window.pintrk !== 'undefined') {
+        pintrk('track', 'checkout', {
+          value: parseFloat(Shopify.checkout.total_price_set.presentment_money.amount),
+          currency: Shopify.checkout.total_price_set.presentment_money.currency_code,
+          order_id: '{{ checkout.id }}',
+          {% for discount_application in checkout.cart_level_discount_applications -%}
+          {%- if discount_application.type == 'discount_code' %}
+          promo_code: {{ discount_application.title | json }},
+          {%- break %}
+          {%- endif %}
+          {% endfor -%}
+          line_items: [
+          {% for item in checkout.line_items -%}
+          {% assign product_category = item.product.type | split: ' - ' | last %}
+          {% if uses_comma_decimals -%}
+            {% assign item_final_price = item.final_price | money_without_currency | replace: '.', '' | replace: ',', '.' | times: 1 %}
+          {% else %}
+            {% assign item_final_price = item.final_price | money_without_currency | replace: ',', '' | times: 1 %}
+          {% endif %}
+            {
+              product_name: {{ item.title | json }},
+              product_brand: {{ item.vendor | json }},
+              product_category: {{ product_category | json }},
+              product_id: 'shopify_{{ SHOP_COUNTRY }}_{{ item.product_id }}_{{ item.variant_id }}',
+              product_price: {{ item_final_price | json }},
+              product_quantity: {{ item.quantity | json }},
+              product_variant: {{ item.variant.title | json }},
+              product_variant_id: '{{ item.variant_id }}'
+            }{% unless forloop.last %},{% endunless %}
+          {%- endfor %}
+          {% assign item_final_price = nil %}
+          ],
+          order_quantity: {{ order_quantity | json }}
+        }, function(didInit, error) {
+          if (!didInit) { console.log(error); }
+        });
+      }
+    </script>
+    <noscript>
+      <img height="1" width="1" style="display:none;" alt=""
+      src="https://ct.pinterest.com/v3/?tid={{ shop.metafields.settings.tags.pinterest.tag_id }}&event=Checkout&pd[em]={{ checkout.email | downcase | sha256 }}&noscript=1" />
+    </noscript>
+  {%- endif -%}
+
+
+  {% comment %}
+    TikTok Tag - Event Tracking
+    ===========================
+  {% endcomment %}
+  {%- if shop.metafields.settings.tags.tiktok.enable and shop.metafields.settings.tags.tiktok.tag_id != blank -%}
+    <script>
+      if (typeof window.ttq !== 'undefined') {
+        ttq.track('PlaceAnOrder', {
+          contents: [
+            {% for item in checkout.line_items -%}
+            {% assign product_category = item.product.type | split: ' - ' | last %}
+            {% if uses_comma_decimals -%}
+              {% assign item_final_price = item.final_price | money_without_currency | replace: '.', '' | replace: ',', '.' | times: 1 %}
+            {% else %}
+              {% assign item_final_price = item.final_price | money_without_currency | replace: ',', '' | times: 1 %}
+            {% endif %}
+            {
+              content_id: 'shopify_{{ SHOP_COUNTRY }}_{{ item.product_id }}_{{ item.variant_id }}',
+              content_type: 'product',
+              content_name: {{ item.title | json }},
+              content_category: {{ product_category | json }},
+              quantity: {{ item.quantity | json }},
+              price: {{ item_final_price | json }},
+            }{% unless forloop.last %},{% endunless %}
+            {%- endfor %}
+            {% assign item_final_price = nil %}
+          ],
+          currency: Shopify.checkout.total_price_set.presentment_money.currency_code,
+          value: parseFloat(Shopify.checkout.total_price_set.presentment_money.amount) 
+        });
+      }
+    </script>
+  {%- endif -%}
+
+{%- endif -%}

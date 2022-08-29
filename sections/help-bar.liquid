@@ -1,0 +1,114 @@
+{{ 'section-help-bar.css' | asset_url | stylesheet_tag }}
+{{ 'component-chat.css' | asset_url | stylesheet_tag }}
+
+<script async src="{{ 'help-bar.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  for storefront in linklists.storefronts.links
+    assign storefront_array = storefront.title | split: '|'
+    assign storefront_name = storefront_array | last | strip
+
+    if storefront_name contains '*'
+      assign shop_country = storefront_array | first | strip
+      break
+    endif
+  endfor
+-%}
+
+<help-bar id="help-bar">
+  <ul class="help-bar__list">
+    {%- liquid
+      assign free_shipping_threshold = settings.free_shipping_threshold | times: 100
+      assign free_shipping_amount_needed = free_shipping_threshold | minus: cart.items_subtotal_price
+      assign free_shippping_allowed_countries = settings.free_shipping_countries | split: ','
+
+      assign shop_currency_symbol = '$'
+      if shop.currency == 'EUR'
+        assign shop_currency_symbol = '€'
+      elsif shop.currency == 'GBP'
+        assign shop_currency_symbol = '£'
+      endif
+    -%}
+    <li
+      class="help-bar__list-item help-bar__list-item--free-shipping
+      {% unless free_shippping_allowed_countries contains localization.country.iso_code %} free-shipping--country-not-allowed{% endunless %}
+      {% if free_shipping_threshold == 0 %} free-shipping--not-available{% endif %}"
+      data-free-shipping-helper
+      data-allowed-countries="{{ settings.free_shipping_countries }}"
+      {%- if request.design_mode %}
+      data-customer-country="{{ settings.free_shipping_countries | split: ',' | first }}"
+      {%- else %}
+      data-customer-country="{{ customer.default_address.country_code }}"
+      {%- endif %}
+      data-threshold="{{ free_shipping_threshold }}"
+      data-shop-currency="{{ shop.currency }}"
+    >
+      {% if free_shipping_threshold == 0 %}
+        Sorry, this store does not offer free shipping
+      {% elsif cart.items.size == 0 %}
+        <a href="{{ routes.root_url }}pages/shipping" class="help-bar__link link free-shipping__status" style="display: none;">Free Shipping on orders over {{ shop_currency_symbol }}<span class="free-shipping__threshold">{{ free_shipping_threshold | money_without_currency }}</span>{{ shop.currency }} {% render 'icon-arrow' %}</a>
+      {% elsif cart.items_subtotal_price < free_shipping_threshold %}
+        <a href="{{ routes.root_url }}pages/shipping" class="help-bar__link link free-shipping__status" style="display: none;">{% render 'icon-cart' %} Add {{ shop_currency_symbol }}<span class="free-shipping__amount-needed">{{ free_shipping_amount_needed | money_without_currency }}</span> {{ shop.currency }} more to unlock Free Shipping</a>
+      {% else %}
+        <a href="{% if template == 'cart' %}#{% else %}{{ routes.cart_url }}{% endif %}" class="help-bar__link link free-shipping__status" style="display: none;">{% render 'icon-cart' %} Free Shipping Unlocked!</a>
+      {% endif %}  
+    </li>
+
+    {%- if shop.metafields.settings.main.shop.mode == 'B2B' -%}
+      <li class="help-bar__list-item help-bar__list-item--store-mode">
+        <button
+          class="button button--secondary help-bar__button help-bar__button--store-mode"
+          data-button="store-mode"
+          data-store-mode="B2B"
+          data-sibling=""
+        >
+          {% render 'icon-caret' %} {{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }} ({{ 'localization.trade' | t }})
+        </button>
+      </li>
+    {%- else -%}
+      <li class="help-bar__list-item help-bar__list-item--store-mode">
+        <button
+          class="button button--secondary help-bar__button help-bar__button--store-mode"
+          data-button="store-mode"
+          data-store-mode="DTC"
+          data-sibling=""
+        >
+          {% render 'icon-caret' %} {{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }}
+        </button>
+      </li>
+    {%- endif -%}
+
+    {%- if shop.metafields.rewards.enable and shop.metafields['smile'].channel_key != blank -%}
+      <li class="help-bar__list-item help-bar__list-item--rewards">
+        <button
+          class="button button--secondary help-bar__button help-bar__button--rewards"
+          data-button="rewards"
+        >
+          {% render 'icon-rewards' %} <span class="help-bar__button-label">{{ 'sections.help-bar.rewards_label' | t }}</span>
+        </button>
+      </li>
+    {%- endif -%}
+
+    {%- if shop.metafields.chat.enable -%}
+      <li class="help-bar__list-item help-bar__list-item--chat">
+        <button
+          class="button button--secondary help-bar__button help-bar__button--chat"
+          data-button="chat"
+          data-chat-online-label="{{ 'sections.help-bar.chat_online_label' | t }}"
+          data-chat-offline-label="{{ 'sections.help-bar.chat_offline_label' | t }}"
+        >
+          {% render 'icon-chat' %} <span class="help-bar__button-label">{{ 'sections.help-bar.chat_label' | t }}</span>
+        </button>
+      </li>
+    {%- endif -%}
+  </ul>
+</help-bar>
+
+{% schema %}
+{
+  "name": "t:sections.help-bar.name",
+  "class": "section-help-bar color-dark",
+  "settings": [
+  ]
+}
+{% endschema %}

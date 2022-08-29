@@ -1,0 +1,29 @@
+#gorgias-chat-container iframe#chat-window,
+#gorgias-chat-container iframe#chat-campaigns {
+  z-index: 4 !important;
+}
+
+body.hide-chat-campaigns #chat-campaigns {
+  display: none !important;
+}
+
+@media (max-width: 750px) {
+  #gorgias-chat-container iframe#chat-button {
+    display: none;
+    pointer-events: none;
+  }
+}
+
+@media (min-width: 751px) {
+  #gorgias-chat-container iframe#chat-button {
+    transition: all 0.3s ease;
+  }
+
+  body:not(.chat-is-open) #gorgias-chat-container iframe#chat-button {
+    bottom: 0px !important;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.1s ease;
+  }
+}

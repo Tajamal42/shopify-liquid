@@ -1,0 +1,13 @@
+{% comment %}
+  Okendo Product Reviews Widget
+  - Displays all reviews for a single product
+  
+  Usage:
+  {% render 'okendo-reviews-widget', product: product %}
+{% endcomment %}
+
+<div data-oke-reviews-widget
+  data-oke-reviews-product-id="shopify-{{ product.id }}"
+>
+  {{ product.metafields.okendo.ProductReviewsWidgetSnippet }}
+</div>

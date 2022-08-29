@@ -1,0 +1,102 @@
+{{ 'component-accordion.css' | asset_url | stylesheet_tag }}
+{{ 'component-rte.css' | asset_url | stylesheet_tag }}
+{{ 'section-faqs.css' | asset_url | stylesheet_tag }}
+
+{%- assign sections = shop.metafields.acf_settings.page_layouts | where: "id", page.id | first | map: "sections" | where: "visible" -%}
+
+{%- if sections -%}
+  {%- assign faqs = '' -%}
+  {%- assign faqs_json = '' -%}
+
+  {%- for section in sections -%}
+    {%- case section.name -%}
+
+      {%- when "faqs" -%}
+        {%- capture faq_item -%}
+          {%- if category != page.metafields.faqs.category[section.index] -%}
+            <h2 class="h1 accordion__category">{{ page.metafields.faqs.category[section.index] }}</h2>
+          {%- endif -%}
+
+          {%- liquid
+            if page.metafields.faqs.question[section.index][request.locale.iso_code] != blank
+              assign question = page.metafields.faqs.question[section.index][request.locale.iso_code]
+            else
+              assign question = page.metafields.faqs.question[section.index]['en']
+            endif
+
+            if page.metafields.faqs.answer[section.index][request.locale.iso_code] != blank
+              assign answer = page.metafields.faqs.answer[section.index][request.locale.iso_code]
+            else
+              assign answer = page.metafields.faqs.answer[section.index]['en']
+            endif
+
+            assign category = page.metafields.faqs.category[section.index]
+          -%}
+
+          <div class="faq__accordion faq__accordion--{{ forloop.index }} faq__accordion--{{ page.metafields.faqs.category[section.index] | handleize }} accordion">
+            <details>
+              <summary>
+                <div class="summary__title">
+                  <h2 class="h4 accordion__title">
+                    {{- question -}}
+                  </h2>
+                </div>
+                {% render 'icon-caret' %}
+              </summary>
+              <div class="accordion__content rte">
+                {{- answer -}}
+              </div>
+            </details>
+          </div>
+        {%- endcapture -%}
+        {%- assign faqs = faqs | append: faq_item -%}
+
+        {%- capture faq_item_json -%}
+          {
+            "@type": "Question",
+            "name": "{{ question | replace: '"', '' | strip }}",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "{{ answer | replace: '"', '' | replace: '&rsquo;', '’' | replace: '&lsquo;', '‘' | replace: '&rdquo;', '”' | replace: '&ldquo;', '“' | replace: '&ndash;', '–' | replace: '&mdash;', '—' | replace: '&amp;', '&' | replace: '%nbsp;', ' ' | strip }}"
+            }
+          }
+        {%- endcapture -%}
+        {%- if faqs_json == blank -%}
+          {%- assign faqs_json = faq_item_json -%}
+        {%- else -%}
+          {%- assign faqs_json = faqs_json | append: ',' | append: faq_item_json -%}
+        {%- endif -%}
+
+    {%- endcase -%}
+  {%- endfor -%}
+
+  {%- if faqs != blank -%}
+    <div id="PageFAQs--{{ section.id }}" class="page-width page-width--narrow">
+      {{ faqs }}
+    </div>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {{ faqs_json }}
+        ]
+      }
+    </script>
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.faqs.name",
+  "class": "spaced-section spaced-section--full-width faqs-section",
+  "tag": "section",
+  "settings": [
+  ],
+  "presets": [
+    {
+      "name": "t:sections.faqs.presets.name"
+    }
+  ]
+}
+{% endschema %}

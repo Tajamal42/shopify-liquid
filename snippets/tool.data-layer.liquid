@@ -1,0 +1,131 @@
+{%- if template.name == 'cart' -%}
+  {%- liquid
+    if uses_comma_decimals
+      assign cart_total_price = cart.total_price | money_without_currency | replace: '.', '' | replace: ',', '.' | times: 1 | json
+    else
+      assign cart_total_price = cart.total_price | money_without_currency | replace: ',', '' | times: 1 | json
+    endif
+  -%}
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      'event': 'view_cart',
+      {%- if customer %}
+      'user_id': '{{ customer.id | sha1 }}',
+      {%- endif %}
+      'page_type': 'cart',
+      {%- if shop.metafields.settings.main.shop_country != blank %}
+      'items': [
+        {% for item in cart.items -%}
+        {
+          'id': 'shopify_{{ shop.metafields.settings.main.shop_country }}_{{ item.product_id }}_{{ item.variant_id }}',
+          'google_business_vertical': 'retail'
+        }
+        {%- unless forloop.last -%},
+        {% endunless -%}
+        {%- endfor %}
+      ],
+      {%- endif %}
+      'value': {{ cart_total_price }}
+    });
+  </script>
+  
+{%- elsif template.name == 'product' -%}
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      'event': 'view_item',
+      {%- if customer %}
+      'user_id': '{{ customer.id | sha1 }}',
+      {%- endif %}
+      'page_type': 'product',
+      {%- if shop.metafields.settings.main.shop_country != blank %}
+      'items': [
+        {
+          'id': 'shopify_{{ shop.metafields.settings.main.shop_country }}_{{ product.id }}_{{ product.selected_or_first_available_variant.id }}',
+          'google_business_vertical': 'retail'
+        }
+      ],
+      {%- endif %}
+      {% if product.selected_or_first_available_variant.price -%}
+      {%- liquid
+        if uses_comma_decimals
+          assign variant_price = product.selected_or_first_available_variant.price | money_without_currency | replace: '.', '' | replace: ',', '.' | times: 1 | json
+        else
+          assign variant_price = product.selected_or_first_available_variant.price | money_without_currency | replace: ',', '' | times: 1 | json
+        endif
+      -%}
+      'value': {{ variant_price }}
+      {% endif -%}
+    });
+  </script>
+
+{%- elsif template.name == 'collection' -%}
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      'event': 'view_item_list',
+      {% if customer %}
+      'user_id': '{{ customer.id | sha1 }}',
+      {% endif %}
+      'page_type': 'category',
+      {%- if shop.metafields.settings.main.shop_country != blank %}
+      'items': [
+        {% assign totalvalue = 0 -%}
+        {% for product in collection.products limit: 50 -%}
+        {% assign totalvalue = totalvalue | plus: product.selected_or_first_available_variant.price -%}
+        {
+          'id': 'shopify_{{ shop.metafields.settings.main.shop_country }}_{{ product.id }}_{{ product.selected_or_first_available_variant.id }}',
+          'google_business_vertical': 'retail'
+        }
+        {%- unless forloop.last -%},
+        {% endunless -%}
+        {%- endfor %}
+      ],
+      {%- endif %}
+      {%- liquid
+        if uses_comma_decimals
+          assign totalvalue = totalvalue | money_without_currency | replace: '.', '' | replace: ',', '.' | times: 1 | json
+        else
+          assign totalvalue = totalvalue | money_without_currency | replace: ',', '' | times: 1 | json
+        endif
+      -%}
+      'value': {{ totalvalue }}
+    });
+  </script>
+
+{%- elsif template.name == 'search' -%}
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      'event': 'view_search_results',
+      {%- if customer %}
+      'user_id': '{{ customer.id | sha1 }}',
+      {%- endif %}
+      'page_type': 'search',
+      {%- if shop.metafields.settings.main.shop_country != blank %}
+      'items': [
+        {% assign totalvalue = 0 -%}
+        {% assign product_results = search.results | where: 'object_type', 'product' -%}
+        {% for product in product_results -%}
+        {% assign totalvalue = totalvalue | plus: product.price -%}
+        {
+          'id': 'shopify_{{ shop.metafields.settings.main.shop_country }}_{{ product.id }}_{{ product.selected_or_first_available_variant.id }}',
+          'google_business_vertical': 'retail'
+        }
+        {%- unless forloop.last -%},
+        {% endunless -%}
+        {%- endfor %}
+      ],
+      {%- endif %}
+      {%- liquid
+        if uses_comma_decimals
+          assign totalvalue = totalvalue | money_without_currency | replace: '.', '' | replace: ',', '.' | times: 1 | json
+        else
+          assign totalvalue = totalvalue | money_without_currency | replace: ',', '' | times: 1 | json
+        endif
+      -%}
+      'value': {{ totalvalue }}
+    });
+  </script>
+{%- endif -%}

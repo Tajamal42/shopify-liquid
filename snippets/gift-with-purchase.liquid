@@ -1,0 +1,87 @@
+{%- if settings.gwp_enable and settings.gwp_product != blank -%}
+  {%- if settings.gwp_buy_products != blank or settings.gwp_buy_collection != blank or settings.gwp_min_spend != blank -%}
+    {%- liquid
+      capture required_variants
+        if settings.gwp_buy_collection.products != blank
+          for product in settings.gwp_buy_collection.products
+            for variant in product.variants
+              echo variant.id
+              unless forloop.last
+                echo ','
+              endunless
+            endfor
+            unless forloop.last
+                echo ','
+              endunless
+          endfor
+
+        elsif settings.gwp_buy_products != blank
+          for product in settings.gwp_buy_products
+            for variant in product.variants
+              echo variant.id
+              unless forloop.last
+                echo ','
+              endunless
+            endfor
+            unless forloop.last
+              echo ','
+            endunless
+          endfor
+        endif
+      endcapture
+
+      assign min_spend = 0
+      if settings.gwp_min_spend != blank
+        assign currency_rate = all_products['currency-converter'].price | divided_by: 10000000000.0
+        assign min_spend = settings.gwp_min_spend | times: 100.0 | times: currency_rate | split: '.' | first
+      endif
+
+      assign gwp_quantity = settings.gwp_quantity | default: 1 | times: 1
+      assign gift_is_available = false
+      if settings.gwp_product.selected_or_first_available_variant.available and settings.gwp_product.selected_or_first_available_variant.inventory_quantity >= gwp_quantity
+        assign gift_is_available = true
+      endif
+
+      assign gwp_customer_tag = settings.gwp_customer_tag | strip
+    -%}
+    <gift-with-purchase
+      id="GiftWithPurchase-Core"
+      data-min-spend="{{ min_spend }}"
+      {% if required_variants != blank -%}
+      data-required-variants="{{ required_variants }}"
+      data-required-quantity="{{ settings.gwp_buy_quantity | default: 1 }}"
+      {% endif -%}
+      data-gift-product="{{ settings.gwp_product.id }}"
+      data-gift-variant="{{ settings.gwp_product.selected_or_first_available_variant.id }}"
+      data-gift-quantity="{{ gwp_quantity }}"
+      {% if settings.gwp_is_bogo and required_variants != blank %}
+      data-gift-is-bogo
+      {% endif %}
+      {% if gift_is_available %}
+      data-gift-is-available
+      {% endif %}
+      {% if settings.gwp_product.tags contains '_is-exclusive' %}
+      data-gift-is-exclusive
+      {% endif %}
+      {% if customer.tags contains gwp_customer_tag %}
+      data-gift-was-claimed
+      {% endif %}
+    >
+      {%- assign customer_email = customer.email | downcase | sha256 -%}
+      {%- form 'product',
+        settings.gwp_product,
+        id: 'FormGiftWithPurchase',
+        class: 'form gwp-form hidden',
+        novalidate: 'novalidate',
+        data-type: 'gwp-form',
+        data-customer: customer_email,
+        data-store-country: shop.metafields.settings.main.shop_country
+      -%}
+        <input type="hidden" name="id" value="{{ settings.gwp_product.first_available_variant.id }}">
+        <input type="hidden" name="quantity" value="{{ gwp_quantity }}">
+      {%- endform -%}
+    </gift-with-purchase>
+
+    <script src="{{ 'gift-with-purchase.js' | asset_url }}" defer></script>
+  {%- endif -%}
+{%- endif -%}

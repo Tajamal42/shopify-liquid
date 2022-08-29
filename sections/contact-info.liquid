@@ -1,0 +1,160 @@
+{{ 'section-contact-info.css' | asset_url | stylesheet_tag }}
+
+<div class="contact-info page-width page-width--narrow spaced-section">
+  <h3 class="h2 contact-info__title">{{ section.settings.heading | escape }}</h3>
+  {%- if section.settings.description != blank -%}
+    <div class="contact-info__description rte">
+      {{ section.settings.description }}
+    </div>
+  {%- endif -%}
+  {%- for block in section.blocks -%}
+    {%- case block.type -%}
+      {%- when 'email' -%}
+        <p class="contact-info__group contact-info__group--email">
+          <span class="contact-info__label">{{ block.settings.title }}</span>
+          {% if block.settings.email != blank %}
+            <a href="mailto:{{ block.settings.email | replace: ' ', '' }}" class="link link--text contact-info__link">{{ block.settings.email }}</a>
+          {% elsif shop.metafields.settings.main.shop.support_email != blank %}
+            <a href="mailto:{{ shop.metafields.settings.main.shop.support_email | replace: ' ', '' }}" class="link link--text contact-info__link">{{ shop.metafields.settings.main.shop.support_email }}</a>
+          {% else %}
+            <a href="mailto:{{ shop.email | replace: ' ', '' }}" class="link link--text contact-info__link">{{ shop.email }}</a>
+          {% endif %}
+        </p>
+      {%- when 'phone' -%}
+        <p class="contact-info__group contact-info__group--phone">
+          <span class="contact-info__label">{{ block.settings.title }}</span>
+          {% if block.settings.phone != blank %}
+            <a href="tel:{{ block.settings.phone_number | replace: ' ', '' }}" class="link link--text contact-info__link">{{ block.settings.phone_number }}</a>
+          {% else %}
+            <a href="tel:{{ shop.phone | replace: ' ', '' }}" class="link link--text  contact-info__link">{{ shop.phone }}</a>
+          {% endif %}
+        </p>
+      {%- when 'whatsapp' -%}
+        {%- if block.settings.number == blank -%}
+          {%- if request.design_mode -%}
+            <p class="contact-info__group contact-info__group--whatsapp">
+              <span class="contact-info__label">{{ block.settings.title }}</span>
+              <span class="contact-info__link">
+                {% render 'icon-whatsapp' %}&nbsp;
+                {{ 'sections.contact-info.missing_number' | t }}
+              </span>
+            </p>
+          {%- endif -%}
+        {%- else -%}
+          <p class="contact-info__group contact-info__group--whatsapp">
+            <span class="contact-info__label">{{ block.settings.title }}</span>
+            <a href="https://api.whatsapp.com/send/?phone={{ block.settings.number | replace: ' ', '' | replace: '+', '' | replace: '-', '' | strip | strip_html }}
+              {% if block.settings.message != blank -%}&text={{ block.settings.message }}{% endif %}"
+              class="link link--text contact-info__link"
+              target="_blank"
+              rel="noopener"
+            >
+              {% render 'icon-whatsapp' %}
+              {{ block.settings.number | escape }}
+            </a>
+          </p>
+        {%- endif -%}
+    {%- endcase -%}
+  {%- endfor -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.contact-info.name",
+  "tag": "section",
+  "class": "spaced-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Contact Information",
+      "label": "t:sections.contact-info.settings.heading.label"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "default": "<p>Enter a description for this contact information group.</p>",
+      "label": "t:sections.contact-info.settings.description.label"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "email",
+      "name": "t:sections.contact-info.blocks.email.name",
+      "settings":[
+        {
+          "type": "text",
+          "id": "title",
+          "default": "Email",
+          "label": "t:sections.contact-info.blocks.email.settings.email_label.label"
+        },
+        {
+          "type": "text",
+          "id": "email",
+          "label": "t:sections.contact-info.blocks.email.settings.email.label",
+          "info": "t:sections.contact-info.blocks.email.settings.email.info"
+        }
+      ]
+    },
+    {
+      "type": "phone",
+      "name": "t:sections.contact-info.blocks.phone.name",
+      "settings":[
+        {
+          "type": "text",
+          "id": "title",
+          "default": "Phone",
+          "label": "t:sections.contact-info.blocks.phone.settings.phone_label.label"
+        },
+        {
+          "type": "text",
+          "id": "phone",
+          "label": "t:sections.contact-info.blocks.phone.settings.phone.label",
+          "info": "t:sections.contact-info.blocks.phone.settings.phone.info"
+        }
+      ]
+    },
+    {
+      "type": "whatsapp",
+      "name": "t:sections.contact-info.blocks.whatsapp.name",
+      "settings":[
+        {
+          "type": "text",
+          "id": "title",
+          "default": "WhatsApp",
+          "label": "t:sections.contact-info.blocks.whatsapp.settings.whatsapp_label.label"
+        },
+        {
+          "type": "text",
+          "id": "number",
+          "label": "t:sections.contact-info.blocks.whatsapp.settings.whatsapp_number.label"
+        },
+        {
+          "type": "text",
+          "id": "message",
+          "default": "Hi, I need help to shop at Brow Code!",
+          "label": "t:sections.contact-info.blocks.whatsapp.settings.whatsapp_message.label",
+          "info": "t:sections.contact-info.blocks.whatsapp.settings.whatsapp_message.info"
+        }
+      ]
+    }
+  ],
+  "templates": ["page"],
+  "presets": [
+    {
+      "name": "t:sections.contact-info.presets.name",
+      "blocks": [
+        {
+          "type": "email"
+        },
+        {
+          "type": "phone"
+        },
+        {
+          "type": "whatsapp"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

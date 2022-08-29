@@ -1,0 +1,115 @@
+{%- if settings.mia_enable and customer and settings.mia_product != blank -%}
+  {%- liquid
+    assign mia_quantity = 0
+    assign mia_tag_prefix = settings.mia_tag_prefix | downcase | strip
+    assign customer_has_mia_tags = false
+
+    for tag in customer.tags
+      assign current_tag = tag | downcase | strip
+      if current_tag contains mia_tag_prefix
+        assign mia_quantity = current_tag | split: '::' | last | times: 1
+        assign customer_has_mia_tags = true
+      endif
+    endfor
+
+    assign mia_is_available = false
+    if settings.mia_product.selected_or_first_available_variant.available and settings.mia_product.selected_or_first_available_variant.inventory_quantity >= mia_quantity
+      assign mia_is_available = true
+    elsif settings.mia_product.selected_or_first_available_variant.inventory_policy == 'continue' 
+      assign mia_is_available = true
+    endif
+    assign mia_is_available = true
+  -%}
+  {%- if mia_is_available and customer_has_mia_tags -%}
+    {{ 'section-missing-items.css' | asset_url | stylesheet_tag }}
+
+    {%- liquid
+      assign mia_in_cart = false
+      for item in cart.items
+        if item.variant_id == settings.mia_product.selected_or_first_available_variant.id and item.final_line_price == 0
+          assign mia_in_cart = true
+          break
+        endif
+      endfor
+    -%}
+    <div id="MissingItems-{{ section.id }}" class="missing-items page-width">
+      <div class="mia-offer{% if mia_in_cart %} mia-offer--in-cart{% endif %}">
+        <div class="mia-offer__info">
+          <h3 class="mia-offer__heading h2">
+            {%- if section.settings.title != blank -%}
+              {{ section.settings.title | replace: "[first_name]", customer.first_name | replace: "[mia_qty]", mia_quantity }}
+            {%- else -%}
+              {{ settings.mia_title | replace: "[first_name]", customer.first_name | replace: "[mia_qty]", mia_quantity }}
+            {%- endif -%}
+          </h3>
+          <div class="mia-offer__description rte">
+            {%- if section.settings.description != blank -%}
+              {{ section.settings.description | replace: "[first_name]", customer.first_name | replace: "[mia_qty]", mia_quantity }}
+            {%- else -%}
+              {{ settings.mia_description | replace: "[first_name]", customer.first_name | replace: "[mia_qty]", mia_quantity}}
+            {%- endif -%}
+          </div>
+        </div>
+        <div class="mia-offer__product">
+          <img
+            class="mia-offer__product-thumbnail"
+            srcset="{% if settings.mia_product.featured_media.preview_image.width >= 288 %}{{ settings.mia_product.featured_media.preview_image | image_url: '288x' }} 288w,{% endif %}
+              {% if settings.mia_product.featured_media.preview_image.width >= 576 %}{{ settings.mia_product.featured_media.preview_image | img_url: '576x' }} 576w,{% endif %}
+              {% if settings.mia_product.featured_media.preview_image.width >= 750 %}{{ settings.mia_product.featured_media.preview_image | img_url: '750x' }} 750w,{% endif %}
+              {% if settings.mia_product.featured_media.preview_image.width >= 1100 %}{{ settings.mia_product.featured_media.preview_image | img_url: '1100x' }} 1100w,{% endif %}
+              {% if settings.mia_product.featured_media.preview_image.width >= 1500 %}{{ settings.mia_product.featured_media.preview_image | img_url: '1500x' }} 1500w,{% endif %}
+              {{ settings.mia_product.featured_media.preview_image | img_url: 'master' }} {{ settings.mia_product.featured_media.preview_image.width }}w"
+            src="{{ settings.mia_product.featured_media | img_url: '1500x' }}"
+            sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | times: 0.64 | round }}px, (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+            loading="lazy"
+            width="576"
+            height="{{ 576 | divided_by: settings.mia_product.featured_media.preview_image.aspect_ratio | ceil }}"
+            alt="{{ settings.mia_product.featured_media.preview_image.alt | escape }}"
+          >
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.missing-items.name",
+  "class": "spaced-section spaced-section--full-width section--mia",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.missing-items.settings.header__setup.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.missing-items.settings.paragraph__setup.content"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.missing-items.settings.header__marketing.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.missing-items.settings.paragraph__marketing.content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.missing-items.settings.title.label"
+    },    
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.missing-items.settings.description.label"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.missing-items.presets.name"
+    }
+  ],
+  "templates": ["cart"]
+}
+{% endschema %}
